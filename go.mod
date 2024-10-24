@@ -1,4 +1,4 @@
-module new0.com/go/framework
+module github.com/deleteelf/goframework
 
 go 1.23.2
 
