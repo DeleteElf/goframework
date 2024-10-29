@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"github.com/go-playground/validator/v10"
+	"github.com/golang-jwt/jwt/v4"
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"net/http"
 )
@@ -123,4 +124,31 @@ func HandleResult(w http.ResponseWriter, result interface{}, err interface{}) {
 // 根据规范进行请求信息验证
 func ValidateRequest(ctx context.Context, req http.Request) (err error) {
 	return validator.New().StructCtx(ctx, req)
+}
+
+var jwtSecretKey = ""
+
+func InitJwtToken(secretKey string) {
+	jwtSecretKey = secretKey
+}
+
+func BuildJwtToken(iat, seconds int64, payload string) (string, error) {
+	claims := make(jwt.MapClaims)
+	claims["exp"] = iat + seconds
+	claims["iat"] = iat
+	claims["payload"] = payload
+
+	var token = jwt.New(jwt.SigningMethodHS256)
+	token.Claims = claims
+	return token.SignedString([]byte(jwtSecretKey))
+}
+
+func ParseJwtToken(tokenStr string) *jwt.Token {
+	token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
+		return []byte(jwtSecretKey), nil
+	})
+	if err != nil {
+		return nil
+	}
+	return token
 }
