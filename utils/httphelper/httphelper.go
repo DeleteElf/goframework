@@ -161,8 +161,10 @@ func BuildJwtToken(payload string, minutes float64, iat int64) (string, error) {
 		minutes = 30
 	}
 	claims := make(jwt.MapClaims)
-	claims["iat"] = time.Unix(iat, 0)
+	timeTick := time.Unix(iat, 0).Unix()
+	claims["iat"] = timeTick
 	claims["exp"] = time.Unix(iat, 0).Add(time.Duration(minutes) * time.Minute).Unix()
+	claims["nbf"] = time.Unix(iat, 0).Add(-1 * time.Minute).Unix() //允许一分钟内的继续用，如果太严格需要服务器之间绝对同步时间
 	claims["payload"] = payload
 
 	var token = jwt.New(jwt.SigningMethodHS256)
@@ -170,6 +172,7 @@ func BuildJwtToken(payload string, minutes float64, iat int64) (string, error) {
 	return token.SignedString([]byte(jwtSecretKey))
 }
 
+// 解析jwt token，tokenStr必须携带协议头 ”Bearer “
 func ParseJwtToken(tokenStr string) *jwt.Token {
 	//var clientClaims jwt.Claims
 	//token, err := jwt.ParseWithClaims(tokenStr, clientClaims, func(t *jwt.Token) (interface{}, error) {
