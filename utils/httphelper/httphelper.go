@@ -7,6 +7,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"net/http"
+	"time"
 )
 
 /*
@@ -132,10 +133,17 @@ func InitJwtToken(secretKey string) {
 	jwtSecretKey = secretKey
 }
 
-func BuildJwtToken(iat, seconds int64, payload string) (string, error) {
+// 创建jwt token ，并支持minutes 和iat 默认值，minutes默认是30，iat默认是当前时间的second
+func BuildJwtToken(payload string, minutes float64, iat int64) (string, error) {
+	if iat == 0 {
+		iat = time.Now().Unix()
+	}
+	if minutes == 0 {
+		minutes = 30
+	}
 	claims := make(jwt.MapClaims)
-	claims["exp"] = iat + seconds
-	claims["iat"] = iat
+	claims["iat"] = time.Unix(iat, 0)
+	claims["exp"] = time.Unix(iat, 0).Add(time.Duration(minutes) * time.Minute).Unix()
 	claims["payload"] = payload
 
 	var token = jwt.New(jwt.SigningMethodHS256)
