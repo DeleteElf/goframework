@@ -127,8 +127,26 @@ func ValidateRequest(ctx context.Context, req http.Request) (err error) {
 	return validator.New().StructCtx(ctx, req)
 }
 
-var jwtSecretKey = ""
+var jwtSecretKey = "framework default key"
 
+/*
+含义上，Header表示 Token 相关的基本元信息，如 Token 类型、加密方式（算法）等，具体如下（alg是必填的，其余都可选）：
+
+typ：Token type
+cty：Content type
+alg：Message authentication code algorithm
+Payload表示 Token 携带的数据及其它 Token 元信息，规范定义的标准字段如下：
+
+iss：Issuer，签发方
+sub：Subject，Token 信息主题（Sub identifies the party that this JWT carries information about）
+aud：Audience，接收方
+exp：Expiration Time，过期时间
+nbf：Not (valid) Before，生效时间
+iat：Issued at，生成时间
+jti：JWT ID，唯一标识
+*/
+
+// 初始化jwtSecretKey，如果是集群，每台的secret key必须是一样的，可以走配置中心
 func InitJwtToken(secretKey string) {
 	jwtSecretKey = secretKey
 }
@@ -152,10 +170,25 @@ func BuildJwtToken(payload string, minutes float64, iat int64) (string, error) {
 }
 
 func ParseJwtToken(tokenStr string) *jwt.Token {
+	//var clientClaims jwt.Claims
+	//token, err := jwt.ParseWithClaims(tokenStr, clientClaims, func(t *jwt.Token) (interface{}, error) {
+	//	if t.Header["alg"] != "HS256" {
+	//		panic("ErrInvalidAlgorithm")
+	//	}
+	//	return []byte(jwtSecretKey), nil
+	//})
 	token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
+		if t.Header["alg"] != "HS256" {
+			panic("ErrInvalidAlgorithm")
+		}
 		return []byte(jwtSecretKey), nil
 	})
 	if err != nil {
+		panic("jwt parse error")
+		return nil
+	}
+	if !token.Valid {
+		panic("ErrInvalidToken")
 		return nil
 	}
 	return token
