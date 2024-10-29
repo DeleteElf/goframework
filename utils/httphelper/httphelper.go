@@ -7,6 +7,7 @@ import (
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/zeromicro/go-zero/rest/httpx"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -177,7 +178,8 @@ func ParseJwtToken(tokenStr string) *jwt.Token {
 	//	}
 	//	return []byte(jwtSecretKey), nil
 	//})
-	token, err := jwt.Parse(tokenStr, func(t *jwt.Token) (interface{}, error) {
+	str := strings.TrimPrefix(tokenStr, "Bearer ")
+	token, err := jwt.Parse(str, func(t *jwt.Token) (interface{}, error) {
 		if t.Header["alg"] != "HS256" {
 			panic("ErrInvalidAlgorithm")
 		}
