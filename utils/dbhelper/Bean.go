@@ -17,7 +17,7 @@ type Bean[T IdData] struct {
 	Active bool `gorm:"column:f_active;default:true"`
 }
 
-type Entry struct {
+type Entity struct {
 	Name string `gorm:"column:f_name"`
 }
 
@@ -29,7 +29,7 @@ type Parent[T IdData] struct {
 // 系统用户
 type UserInfo struct {
 	Bean[int]         //匿名扩展
-	Entry             //扁平式扩展，而非继承
+	Entity            //扁平式扩展，而非继承
 	Account   string  `gorm:"column:f_account"`
 	Password  string  `gorm:"column:f_password"`
 	Email     *string `gorm:"column:f_email"` //定义指针是为了支持空值
