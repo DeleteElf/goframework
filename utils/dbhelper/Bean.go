@@ -1,7 +1,7 @@
 package dbhelper
 
 type IdData interface {
-	string | int | uint | int32 | uint32 | int64 | uint64 //id支持的类型
+	string | ~int // int | uint | int32 | uint32 | int64 | uint64 //id支持的类型
 }
 
 type Bean interface {
@@ -14,14 +14,18 @@ type BeanBase[T IdData] struct {
 	Active bool `gorm:"column:f_active;default:true"`
 }
 
-type Entry[T IdData] struct {
-	BeanBase[T]
+type Entry struct {
 	Name string `gorm:"column:f_name"`
+}
+
+type Parent[T IdData] struct {
+	Parent T `gorm:"column:f_parent_id"`
 }
 
 // 系统用户
 type UserInfo struct {
-	Entry[int]
+	BeanBase[int]
+	Entry
 	Account  string  `gorm:"column:f_account"`
 	Password string  `gorm:"column:f_password"`
 	Email    *string `gorm:"column:f_email"` //定义指针是为了支持空值
