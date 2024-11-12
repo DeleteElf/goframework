@@ -26,11 +26,11 @@ type DbInterface interface {
 	//关闭数据库连接
 	Close() bool
 
-	AutoMigrate(bean ModelInterface) error
-	Save(bean ModelInterface)
+	AutoMigrate(model ModelInterface) error
+	Save(model ModelInterface)
 
-	SelectById(bean ModelInterface, id any)
-	SelectByCondition(bean ModelInterface, conds ...any)
+	SelectById(model ModelInterface, id any)
+	SelectByCondition(datas []ModelInterface, query string, conds ...any)
 }
 
 type DbBase struct {

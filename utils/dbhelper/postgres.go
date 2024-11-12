@@ -43,28 +43,28 @@ func (pg *PostgresDB) Close() bool {
 	return true
 }
 
-func (pg *PostgresDB) AutoMigrate(bean ModelInterface) error {
+func (pg *PostgresDB) AutoMigrate(model ModelInterface) error {
 	if pg.Open() {
 		defer pg.Close()
-		return pg.db.AutoMigrate(bean)
+		return pg.db.AutoMigrate(model)
 	}
 	return nil
 }
-func (pg *PostgresDB) Save(bean ModelInterface) {
+func (pg *PostgresDB) Save(model ModelInterface) {
 	if pg.Open() {
 		defer pg.Close()
-		pg.db.Save(bean)
+		pg.db.Save(model)
 	}
 }
 
-func (pg *PostgresDB) SelectById(bean ModelInterface, id any) {
+func (pg *PostgresDB) SelectById(model ModelInterface, id any) {
 	//反射的案例，不过gorm已经做好反射了
 	//t := reflect.TypeFor[T1]()
 	//val := reflect.New(t).Elem()
 	//result := val.Interface().(T1)
 	if pg.Open() {
 		defer pg.Close()
-		err := pg.db.First(bean, id).Error
+		err := pg.db.First(model, id).Error
 		switch err {
 		case gorm.ErrRecordNotFound:
 			loghelper.GetLogManager().Error("根据Id查询的数据不存在！！！")
@@ -76,10 +76,10 @@ func (pg *PostgresDB) SelectById(bean ModelInterface, id any) {
 	}
 }
 
-func (pg *PostgresDB) SelectByCondition(bean ModelInterface, conds ...any) {
+func (pg *PostgresDB) SelectByCondition(datas []ModelInterface, query string, conds ...any) {
 	if pg.Open() {
 		defer pg.Close()
-		err := pg.db.Take(bean, conds).Error
+		err := pg.db.Where(query, conds).Find(datas).Error
 		switch err {
 		case gorm.ErrRecordNotFound:
 			loghelper.GetLogManager().Error("查询的数据不存在！！！")
