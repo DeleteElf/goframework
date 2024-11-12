@@ -3,6 +3,7 @@ package dbhelper
 import (
 	"github.com/deleteelf/goframework/utils/loghelper"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 )
 
@@ -39,12 +40,13 @@ type DbBase struct {
 }
 
 // 参考： https://gorm.io/docs/gorm_config.html
-func CreateDb(connectionString string, dbType DbType) DbInterface {
+func CreateDb(connectionString string, dbType DbType, logLevel logger.LogLevel) DbInterface {
 	config := DbConfig{ConnectionString: connectionString, DbType: dbType}
 	config.SkipDefaultTransaction = true
 	config.NamingStrategy = schema.NamingStrategy{
 		TablePrefix: "t_",
 	}
+	config.Logger = logger.Default.LogMode(logLevel)
 	switch dbType {
 	case Postgres:
 		pg := NewPostgresDB(config)
