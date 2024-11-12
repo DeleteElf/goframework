@@ -1,6 +1,7 @@
 package dbhelper
 
 import (
+	"fmt"
 	"github.com/deleteelf/goframework/utils/loghelper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -83,5 +84,5 @@ func (pg *PostgresDB) SelectByCondition(bean Bean, conds ...any) Bean {
 func (pg *PostgresDB) test() {
 	var user UserInfo
 	pg.SelectById(user, 1)
-
+	fmt.Printf("%s", user.Id)
 }
