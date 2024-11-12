@@ -23,12 +23,12 @@ type DbInterface interface {
 	Open() bool
 	//关闭数据库连接
 	Close() bool
-	SelectById(bean BeanInterface, id any) BeanInterface
-	SelectByCondition(bean BeanInterface, conds ...any) BeanInterface
+	SelectById(bean BeanInterface, id any) Bean
+	SelectByCondition(bean BeanInterface, conds ...any) Bean
 }
 
 type DbBase struct {
-	DbInterface
+	//DbInterface
 	Config DbConfig
 	db     *gorm.DB
 }

@@ -1,18 +1,32 @@
 package dbhelper
 
+import (
+	"github.com/deleteelf/goframework/utils/stringhelper"
+	"reflect"
+)
+
 type IdData interface {
 	string | int | uint | int32 | uint32 | int64 | uint64 //id支持的类型
 }
 
 type BeanInterface interface {
-	//TableName() string //如果强制要求每个对象都必须书写映射，则取消此注释
+	TableName() string //如果强制要求每个对象都必须书写映射，则取消此注释
 }
 
-type ParentChildrenInterface interface {
+//
+//type ParentChildrenInterface interface {
+//}
+
+type Bean struct {
 }
 
-type Bean[T IdData] struct {
-	BeanInterface
+func (bean Bean) TableName() string {
+	t := reflect.TypeOf(bean)
+	return "t_" + stringhelper.ConvertCamelToSnakeWithDefault(t.Name())
+}
+
+type BeanBase[T IdData] struct {
+	Bean
 	Id     T    `gorm:"column:f_id;primaryKey"` //默认会使用Id作为主键
 	Active bool `gorm:"column:f_active;default:true"`
 }
@@ -22,20 +36,20 @@ type Entity struct {
 }
 
 type Parent[T IdData] struct {
-	ParentChildrenInterface
+	//ParentChildrenInterface
 	Parent T `gorm:"column:f_parent_id"`
 }
 
 // 系统用户
 type UserInfo struct {
-	Bean[int]         //匿名扩展
-	Entity            //扁平式扩展，而非继承
-	Account   string  `gorm:"column:f_account"`
-	Password  string  `gorm:"column:f_password"`
-	Email     *string `gorm:"column:f_email"` //定义指针是为了支持空值
+	BeanBase[int]         //匿名扩展
+	Entity                //扁平式扩展，而非继承
+	Account       string  `gorm:"column:f_account"`
+	Password      string  `gorm:"column:f_password"`
+	Email         *string `gorm:"column:f_email"` //定义指针是为了支持空值
 }
 
-// 系统用户的表名定义
-func (UserInfo) TableName() string {
-	return "t_user_info"
-}
+//// 系统用户的表名定义
+//func (UserInfo) TableName() string {
+//	return "t_user_info"
+//}
