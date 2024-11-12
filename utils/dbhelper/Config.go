@@ -3,6 +3,7 @@ package dbhelper
 import (
 	"github.com/deleteelf/goframework/utils/loghelper"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 )
 
 type DbType int
@@ -23,8 +24,8 @@ type DbInterface interface {
 	Open() bool
 	//关闭数据库连接
 	Close() bool
-	SelectById(bean BeanInterface, id any) Bean
-	SelectByCondition(bean BeanInterface, conds ...any) Bean
+	SelectById(bean ModelInterface, id any) Model
+	SelectByCondition(bean ModelInterface, conds ...any) Model
 }
 
 type DbBase struct {
@@ -33,9 +34,13 @@ type DbBase struct {
 	db     *gorm.DB
 }
 
+// 参考： https://gorm.io/docs/gorm_config.html
 func CreateDb(connectionString string, dbType DbType) DbInterface {
 	config := DbConfig{ConnectionString: connectionString, DbType: dbType}
 	config.SkipDefaultTransaction = true
+	config.NamingStrategy = schema.NamingStrategy{
+		TablePrefix: "t_",
+	}
 	switch dbType {
 	case Postgres:
 		pg := NewPostgresDB(config)

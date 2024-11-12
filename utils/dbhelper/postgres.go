@@ -44,7 +44,7 @@ func (pg *PostgresDB) Close() bool {
 	return true
 }
 
-func (pg *PostgresDB) SelectById(bean BeanInterface, id any) Bean {
+func (pg *PostgresDB) SelectById(bean ModelInterface, id any) Model {
 	//反射的案例，不过gorm已经做好反射了
 	//t := reflect.TypeFor[T1]()
 	//val := reflect.New(t).Elem()
@@ -60,11 +60,11 @@ func (pg *PostgresDB) SelectById(bean BeanInterface, id any) Bean {
 		}
 		defer pg.Close()
 	}
-	return bean.(Bean)
+	return bean.(Model)
 	//return result
 }
 
-func (pg *PostgresDB) SelectByCondition(bean BeanInterface, conds ...any) Bean {
+func (pg *PostgresDB) SelectByCondition(bean ModelInterface, conds ...any) Model {
 	if pg.Open() {
 		err := pg.db.Take(bean, conds).Error
 		switch err {
@@ -76,7 +76,7 @@ func (pg *PostgresDB) SelectByCondition(bean BeanInterface, conds ...any) Bean {
 		}
 		defer pg.Close()
 	}
-	return bean.(Bean)
+	return bean.(Model)
 }
 
 func (pg *PostgresDB) test() {

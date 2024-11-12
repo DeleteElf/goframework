@@ -3,13 +3,14 @@ package dbhelper
 import (
 	"github.com/deleteelf/goframework/utils/stringhelper"
 	"reflect"
+	"time"
 )
 
 type IdData interface {
 	string | int | uint | int32 | uint32 | int64 | uint64 //id支持的类型
 }
 
-type BeanInterface interface {
+type ModelInterface interface {
 	TableName() string //如果强制要求每个对象都必须书写映射，则取消此注释
 }
 
@@ -17,36 +18,40 @@ type BeanInterface interface {
 //type ParentChildrenInterface interface {
 //}
 
-type Bean struct {
+type Model struct {
 }
 
-func (bean Bean) TableName() string {
-	t := reflect.TypeOf(bean)
+func (model Model) TableName() string {
+	t := reflect.TypeOf(model)
 	return "t_" + stringhelper.ConvertCamelToSnakeWithDefault(t.Name())
 }
 
-type BeanBase[T IdData] struct {
-	Bean
-	Id     T    `gorm:"column:f_id;primaryKey"` //默认会使用Id作为主键
-	Active bool `gorm:"column:f_active;default:true"`
+type Bean[T IdData] struct {
+	Model
+	Id         T         `gorm:"column:f_id;primaryKey"` //默认会使用Id作为主键
+	Active     bool      `gorm:"column:f_active;default:true"`
+	CreateTime time.Time `gorm:"column:f_create_time;default:now()"` //默认当前时间
+	ModifyTime time.Time `gorm:"column:f_modify_time;default:now()"`
+	Remark     *string   `gorm:"column:f_remark"` //定义指针是为了支持空值
 }
 
 type Entity struct {
-	Name string `gorm:"column:f_name"`
+	Name string `gorm:"column:f_name;type:nvarchar(20);not null"` //定义有名称的实体
 }
 
 type Parent[T IdData] struct {
 	//ParentChildrenInterface
-	Parent T `gorm:"column:f_parent_id"`
+	Parent T `gorm:"column:f_parent_id"` //定义有父子关系的结构
 }
 
 // 系统用户
 type UserInfo struct {
-	BeanBase[int]         //匿名扩展
-	Entity                //扁平式扩展，而非继承
-	Account       string  `gorm:"column:f_account"`
-	Password      string  `gorm:"column:f_password"`
-	Email         *string `gorm:"column:f_email"` //定义指针是为了支持空值
+	Bean[int]         //匿名扩展
+	Entity            //扁平式扩展，而非继承
+	Account   string  `gorm:"column:f_account;type:nvarchar(20);not null"`
+	Password  string  `gorm:"column:f_password;type:nvarchar(35);not null"`
+	Email     *string `gorm:"column:f_email;type:nvarchar(30);"`     //定义指针是为了支持空值
+	Telephone *string `gorm:"column:f_telephone;type:nvarchar(20);"` //定义有名称的实体
 }
 
 // 系统用户的表名定义
