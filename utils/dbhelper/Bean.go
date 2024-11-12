@@ -36,7 +36,7 @@ type Bean[T IdData] struct {
 }
 
 type Entity struct {
-	Name string `gorm:"column:f_name;type:nvarchar(20);not null"` //定义有名称的实体
+	Name string `gorm:"column:f_name;type:nvarchar(20);"` //定义有名称的实体
 }
 
 type Parent[T IdData] struct {
