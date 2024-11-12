@@ -24,8 +24,8 @@ type DbInterface interface {
 	Open() bool
 	//关闭数据库连接
 	Close() bool
-	SelectById(bean ModelInterface, id any) Model
-	SelectByCondition(bean ModelInterface, conds ...any) Model
+	SelectById(bean ModelInterface, id any)
+	SelectByCondition(bean ModelInterface, conds ...any)
 }
 
 type DbBase struct {

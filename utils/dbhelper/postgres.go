@@ -23,33 +23,34 @@ func (pg *PostgresDB) Open() bool {
 	var err error
 	pg.db, err = gorm.Open(postgres.Open(pg.Config.ConnectionString), &pg.Config)
 	if err != nil {
-		loghelper.GetLogManager().Error("数据库连接失败！！%s", pg.Config.ConnectionString)
+		loghelper.GetLogManager().ErrorFormat("数据库连接失败！！%s", pg.Config.ConnectionString)
 		return false
 	}
-	loghelper.GetLogManager().Info("数据库连接成功！！%s", pg.Config.ConnectionString)
+	loghelper.GetLogManager().InfoFormat("数据库连接成功！！%s", pg.Config.ConnectionString)
 	return true
 }
 
 func (pg *PostgresDB) Close() bool {
 	sqlDb, err := pg.db.DB()
 	if err != nil {
-		loghelper.GetLogManager().ErrorV(err)
+		loghelper.GetLogManager().Error(err)
 		return false
 	}
 	err = sqlDb.Close()
 	if err != nil {
-		loghelper.GetLogManager().ErrorV(err)
+		loghelper.GetLogManager().Error(err)
 		return false
 	}
 	return true
 }
 
-func (pg *PostgresDB) SelectById(bean ModelInterface, id any) Model {
+func (pg *PostgresDB) SelectById(bean ModelInterface, id any) {
 	//反射的案例，不过gorm已经做好反射了
 	//t := reflect.TypeFor[T1]()
 	//val := reflect.New(t).Elem()
 	//result := val.Interface().(T1)
 	if pg.Open() {
+		defer pg.Close()
 		err := pg.db.First(bean, id).Error
 		switch err {
 		case gorm.ErrRecordNotFound:
@@ -58,14 +59,13 @@ func (pg *PostgresDB) SelectById(bean ModelInterface, id any) Model {
 		default:
 			break
 		}
-		defer pg.Close()
+
 	}
-	return bean.(Model)
-	//return result
 }
 
-func (pg *PostgresDB) SelectByCondition(bean ModelInterface, conds ...any) Model {
+func (pg *PostgresDB) SelectByCondition(bean ModelInterface, conds ...any) {
 	if pg.Open() {
+		defer pg.Close()
 		err := pg.db.Take(bean, conds).Error
 		switch err {
 		case gorm.ErrRecordNotFound:
@@ -74,9 +74,7 @@ func (pg *PostgresDB) SelectByCondition(bean ModelInterface, conds ...any) Model
 		default:
 			break
 		}
-		defer pg.Close()
 	}
-	return bean.(Model)
 }
 
 func (pg *PostgresDB) test() {
