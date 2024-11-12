@@ -23,10 +23,10 @@ type DbInterface interface {
 	Open() bool
 	//关闭数据库连接
 	Close() bool
-	SelectById(bean Bean, id interface {
+	SelectById(bean BeanInterface, id interface {
 		string | int | uint | int32 | uint32 | int64 | uint64 //id支持的类型
-	}) Bean
-	SelectByCondition(bean Bean, conds ...any) Bean
+	}) BeanInterface
+	SelectByCondition(bean BeanInterface, conds ...any) BeanInterface
 }
 
 type DbBase struct {
