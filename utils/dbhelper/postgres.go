@@ -44,9 +44,7 @@ func (pg *PostgresDB) Close() bool {
 	return true
 }
 
-func (pg *PostgresDB) SelectById(bean BeanInterface, id interface {
-	string | int | uint | int32 | uint32 | int64 | uint64 //id支持的类型
-}) BeanInterface {
+func (pg *PostgresDB) SelectById(bean BeanInterface, id any) BeanInterface {
 	//反射的案例，不过gorm已经做好反射了
 	//t := reflect.TypeFor[T1]()
 	//val := reflect.New(t).Elem()
