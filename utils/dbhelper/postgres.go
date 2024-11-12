@@ -18,13 +18,22 @@ func NewPostgresDB(config DbConfig) *PostgresDB {
 	}
 }
 
-func (pg *PostgresDB) SelectById(bean Bean, id interface{ int | string }) Bean {
+func (pg *PostgresDB) SelectById(bean Bean, id interface {
+	string | int | uint | int32 | uint32 | int64 | uint64 //id支持的类型
+}) Bean {
 	//反射的案例，不过gorm已经做好反射了
 	//t := reflect.TypeFor[T1]()
 	//val := reflect.New(t).Elem()
 	//result := val.Interface().(T1)
 	if pg.Open() {
-		pg.db.First(bean, id)
+		err := pg.db.First(bean, id).Error
+		switch err {
+		case gorm.ErrRecordNotFound:
+			loghelper.GetLogManager().Error("根据Id查询的数据不存在！！！")
+			break
+		default:
+			break
+		}
 		defer pg.Close()
 	}
 	return bean
@@ -33,14 +42,17 @@ func (pg *PostgresDB) SelectById(bean Bean, id interface{ int | string }) Bean {
 
 func (pg *PostgresDB) SelectByCondition(bean Bean, conds ...any) Bean {
 	if pg.Open() {
-		pg.db.Take(bean, conds)
+		err := pg.db.Take(bean, conds).Error
+		switch err {
+		case gorm.ErrRecordNotFound:
+			loghelper.GetLogManager().Error("查询的数据不存在！！！")
+			break
+		default:
+			break
+		}
 		defer pg.Close()
 	}
 	return bean
-}
-
-func (pg *PostgresDB) ExectuQuery(sql string) {
-
 }
 
 func (pg *PostgresDB) Open() bool {

@@ -19,7 +19,13 @@ type DbConfig struct {
 	gorm.Config      //扩展gorm的配置
 }
 type DbInterface interface {
-	SelectById(bean Bean, id interface{ int | string }) Bean
+	//打开数据库连接
+	Open() bool
+	//关闭数据库连接
+	Close() bool
+	SelectById(bean Bean, id interface {
+		string | int | uint | int32 | uint32 | int64 | uint64 //id支持的类型
+	}) Bean
 	SelectByCondition(bean Bean, conds ...any) Bean
 }
 
