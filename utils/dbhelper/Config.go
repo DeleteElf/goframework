@@ -24,6 +24,10 @@ type DbInterface interface {
 	Open() bool
 	//关闭数据库连接
 	Close() bool
+
+	AutoMigrate(bean ModelInterface) error
+	Save(bean ModelInterface)
+
 	SelectById(bean ModelInterface, id any)
 	SelectByCondition(bean ModelInterface, conds ...any)
 }

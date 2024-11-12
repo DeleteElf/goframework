@@ -1,7 +1,6 @@
 package dbhelper
 
 import (
-	"fmt"
 	"github.com/deleteelf/goframework/utils/loghelper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -44,6 +43,20 @@ func (pg *PostgresDB) Close() bool {
 	return true
 }
 
+func (pg *PostgresDB) AutoMigrate(bean ModelInterface) error {
+	if pg.Open() {
+		defer pg.Close()
+		return pg.db.AutoMigrate(bean)
+	}
+	return nil
+}
+func (pg *PostgresDB) Save(bean ModelInterface) {
+	if pg.Open() {
+		defer pg.Close()
+		pg.db.Save(bean)
+	}
+}
+
 func (pg *PostgresDB) SelectById(bean ModelInterface, id any) {
 	//反射的案例，不过gorm已经做好反射了
 	//t := reflect.TypeFor[T1]()
@@ -75,10 +88,4 @@ func (pg *PostgresDB) SelectByCondition(bean ModelInterface, conds ...any) {
 			break
 		}
 	}
-}
-
-func (pg *PostgresDB) test() {
-	var user UserInfo
-	pg.SelectById(user, 1)
-	fmt.Printf("%s", user.Id)
 }
