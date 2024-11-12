@@ -49,7 +49,7 @@ type UserInfo struct {
 	Email         *string `gorm:"column:f_email"` //定义指针是为了支持空值
 }
 
-//// 系统用户的表名定义
-//func (UserInfo) TableName() string {
-//	return "t_user_info"
-//}
+// 系统用户的表名定义
+func (UserInfo) TableName() string {
+	return "t_user_info"
+}
