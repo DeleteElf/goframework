@@ -36,7 +36,7 @@ type Bean[T IdData] struct {
 }
 
 type Entity struct {
-	Name string `gorm:"column:f_name;type:nvarchar(20);"` //定义有名称的实体
+	Name string `gorm:"column:f_name;type:varchar(20);"` //定义有名称的实体
 }
 
 type Parent[T IdData] struct {
@@ -48,10 +48,10 @@ type Parent[T IdData] struct {
 type UserInfo struct {
 	Bean[int]         //匿名扩展
 	Entity            //扁平式扩展，而非继承
-	Account   string  `gorm:"column:f_account;type:nvarchar(20);not null"`
-	Password  string  `gorm:"column:f_password;type:nvarchar(35);not null"`
-	Email     *string `gorm:"column:f_email;type:nvarchar(30);"`     //定义指针是为了支持空值
-	Telephone *string `gorm:"column:f_telephone;type:nvarchar(20);"` //定义有名称的实体
+	Account   string  `gorm:"column:f_account;type:varchar(20);not null"`
+	Password  string  `gorm:"column:f_password;type:varchar(35);not null"`
+	Email     *string `gorm:"column:f_email;type:varchar(30);"`     //定义指针是为了支持空值
+	Telephone *string `gorm:"column:f_telephone;type:varchar(20);"` //定义有名称的实体
 }
 
 // 系统用户的表名定义
