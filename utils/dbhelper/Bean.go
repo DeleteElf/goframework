@@ -24,11 +24,11 @@ type Parent[T IdData] struct {
 
 // 系统用户
 type UserInfo struct {
-	BeanBase[int]
-	Entry
-	Account  string  `gorm:"column:f_account"`
-	Password string  `gorm:"column:f_password"`
-	Email    *string `gorm:"column:f_email"` //定义指针是为了支持空值
+	BeanBase[int]         //匿名扩展
+	Entry                 //扁平式扩展，而非继承
+	Account       string  `gorm:"column:f_account"`
+	Password      string  `gorm:"column:f_password"`
+	Email         *string `gorm:"column:f_email"` //定义指针是为了支持空值
 }
 
 // 系统用户的表名定义
