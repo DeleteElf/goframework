@@ -5,7 +5,7 @@ type IdData interface {
 }
 
 type Bean interface {
-	TableName()
+	//TableName() string //如果强制要求每个对象都必须书写映射，则取消此注释
 }
 
 type BeanBase[T IdData] struct {

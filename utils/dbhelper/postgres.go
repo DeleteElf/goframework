@@ -18,6 +18,31 @@ func NewPostgresDB(config DbConfig) *PostgresDB {
 	}
 }
 
+func (pg *PostgresDB) Open() bool {
+	var err error
+	pg.db, err = gorm.Open(postgres.Open(pg.Config.ConnectionString), &pg.Config)
+	if err != nil {
+		loghelper.GetLogManager().Error("数据库连接失败！！%s", pg.Config.ConnectionString)
+		return false
+	}
+	loghelper.GetLogManager().Info("数据库连接成功！！%s", pg.Config.ConnectionString)
+	return true
+}
+
+func (pg *PostgresDB) Close() bool {
+	sqlDb, err := pg.db.DB()
+	if err != nil {
+		loghelper.GetLogManager().ErrorV(err)
+		return false
+	}
+	err = sqlDb.Close()
+	if err != nil {
+		loghelper.GetLogManager().ErrorV(err)
+		return false
+	}
+	return true
+}
+
 func (pg *PostgresDB) SelectById(bean Bean, id interface {
 	string | int | uint | int32 | uint32 | int64 | uint64 //id支持的类型
 }) Bean {
@@ -55,27 +80,8 @@ func (pg *PostgresDB) SelectByCondition(bean Bean, conds ...any) Bean {
 	return bean
 }
 
-func (pg *PostgresDB) Open() bool {
-	var err error
-	pg.db, err = gorm.Open(postgres.Open(pg.Config.ConnectionString), &pg.Config)
-	if err != nil {
-		loghelper.GetLogManager().Error("数据库连接失败！！%s", pg.Config.ConnectionString)
-		return false
-	}
-	loghelper.GetLogManager().Info("数据库连接成功！！%s", pg.Config.ConnectionString)
-	return true
-}
+func (pg *PostgresDB) test() {
+	var user UserInfo
+	pg.SelectById(user, 1)
 
-func (pg *PostgresDB) Close() bool {
-	sqlDb, err := pg.db.DB()
-	if err != nil {
-		loghelper.GetLogManager().ErrorV(err)
-		return false
-	}
-	err = sqlDb.Close()
-	if err != nil {
-		loghelper.GetLogManager().ErrorV(err)
-		return false
-	}
-	return true
 }
