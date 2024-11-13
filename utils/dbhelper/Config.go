@@ -1,6 +1,7 @@
 package dbhelper
 
 import (
+	"database/sql"
 	"github.com/deleteelf/goframework/utils/loghelper"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -25,12 +26,28 @@ type DbInterface interface {
 	Open() bool
 	//关闭数据库连接
 	Close() bool
-
+	//开始事务，开始事务后，连接会始终打开，直到调用提交事务、回滚事务、关闭连接等操作
+	BeginTransaction() bool
+	//提交事务
+	CommitTransaction() bool
+	//回滚事务
+	RollbackTransaction() bool
+	//是否处于事务中
+	IsInTransaction() bool
+	//自动更新表结构，慎重使用此方法
 	AutoMigrate(model ModelInterface) error
+	//保存或更新数据
 	Save(model ModelInterface)
-
+	//根据id查询对象数据
 	SelectById(model ModelInterface, id any)
-	SelectByCondition(dest interface{}, query string, conds ...any)
+	//根据条件查询对象数据
+	SelectByCondition(dest interface{}, condition string, conds ...any)
+	//查询数据
+	QueryData(sql string, conds ...any) *DataTable
+}
+
+type DataTable struct {
+	Rows *sql.Rows
 }
 
 type DbBase struct {
