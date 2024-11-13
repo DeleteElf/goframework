@@ -80,7 +80,7 @@ func (pg *PostgresDB) SelectById(model ModelInterface, id any) {
 func (pg *PostgresDB) SelectByCondition(dest interface{}, query string, conds ...any) {
 	if pg.Open() {
 		defer pg.Close()
-		err := pg.db.Where(query, conds).Find(dest).Error
+		err := pg.db.Where(query, conds...).Find(dest).Error
 		switch err {
 		case gorm.ErrRecordNotFound:
 			loghelper.GetLogManager().Error("查询的数据不存在！！！")
