@@ -198,3 +198,8 @@ func ParseJwtToken(tokenStr string) *jwt.Token {
 	}
 	return token
 }
+
+func GetJwtPayload(tokenStr string) any {
+	tokenData := ParseJwtToken(tokenStr).Claims.(jwt.MapClaims)
+	return tokenData["payload"]
+}
