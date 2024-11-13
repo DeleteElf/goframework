@@ -1,7 +1,6 @@
 package dbhelper
 
 import (
-	"database/sql"
 	"github.com/deleteelf/goframework/utils/loghelper"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -47,7 +46,7 @@ type DbInterface interface {
 }
 
 type DataTable struct {
-	Rows *sql.Rows
+	Rows []map[string]interface{}
 }
 
 type DbBase struct {

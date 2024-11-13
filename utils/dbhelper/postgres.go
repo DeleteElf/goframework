@@ -112,10 +112,10 @@ func (pg *PostgresDB) SelectByCondition(dest interface{}, query string, conds ..
 }
 
 func (pg *PostgresDB) QueryData(sql string, conds ...any) *DataTable {
+	result := new(DataTable)
 	if pg.Open() {
 		defer pg.Close()
-		result := new(DataTable)
-		rows, err := pg.db.Raw(sql, conds...).Rows()
+		err := pg.db.Raw(sql, conds...).Scan(&result.Rows).Error
 		switch err {
 		case gorm.ErrRecordNotFound:
 			loghelper.GetLogManager().Error("查询的数据不存在！！！")
@@ -126,8 +126,6 @@ func (pg *PostgresDB) QueryData(sql string, conds ...any) *DataTable {
 		default:
 			break
 		}
-		result.Rows = rows
-		return result
 	}
-	return nil
+	return result
 }
