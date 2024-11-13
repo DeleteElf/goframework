@@ -30,7 +30,7 @@ type DbInterface interface {
 	Save(model ModelInterface)
 
 	SelectById(model ModelInterface, id any)
-	SelectByCondition(datas []ModelInterface, query string, conds ...any)
+	SelectByCondition(dest interface{}, query string, conds ...any)
 }
 
 type DbBase struct {

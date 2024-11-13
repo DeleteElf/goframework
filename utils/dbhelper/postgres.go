@@ -76,10 +76,11 @@ func (pg *PostgresDB) SelectById(model ModelInterface, id any) {
 	}
 }
 
-func (pg *PostgresDB) SelectByCondition(datas []ModelInterface, query string, conds ...any) {
+// 根据条件查询数据，dest传入数组指针
+func (pg *PostgresDB) SelectByCondition(dest interface{}, query string, conds ...any) {
 	if pg.Open() {
 		defer pg.Close()
-		err := pg.db.Where(query, conds).Find(datas).Error
+		err := pg.db.Where(query, conds).Find(dest).Error
 		switch err {
 		case gorm.ErrRecordNotFound:
 			loghelper.GetLogManager().Error("查询的数据不存在！！！")
