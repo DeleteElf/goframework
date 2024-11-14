@@ -6,6 +6,7 @@ import (
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
 )
 
 type PostgresDB struct {
@@ -23,16 +24,16 @@ func NewPostgresDB(config DbConfig) *PostgresDB {
 
 func (pg *PostgresDB) Open() bool {
 	var err error
-	conf := MyNamingStrategy{
-		ColumnPrefix: "f_",
-	}
-	conf.TablePrefix = "t_"
-	conf.IdentifierMaxLength = 64
-	conf.SingularTable = false
+	//conf := MyNamingStrategy{
+	//	ColumnPrefix: "f_",
+	//}
+	//conf.TablePrefix = "t_"
+	//conf.IdentifierMaxLength = 64
+	//conf.SingularTable = false
 	pg.db, err = gorm.Open(postgres.Open(pg.Config.ConnectionString), &gorm.Config{
 		SkipDefaultTransaction: pg.Config.SkipDefaultTransaction,
 		Logger:                 logger.Default.LogMode(pg.Config.LogLevel),
-		NamingStrategy:         conf,
+		NamingStrategy:         schema.NamingStrategy{},
 	})
 	if err != nil {
 		loghelper.GetLogManager().ErrorFormat("数据库连接失败！！%s", pg.Config.ConnectionString)
