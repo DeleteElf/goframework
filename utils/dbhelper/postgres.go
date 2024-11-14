@@ -129,6 +129,7 @@ func (pg *PostgresDB) QueryData(sql string, conds ...any) *DataTable {
 		pg.db.Raw(sql, conds...)
 		if pg.Config.SafeColumn {
 			rows, err := pg.db.Rows()
+			defer rows.Close()
 			if err != nil {
 				loghelper.GetLogManager().Error("获取行数据出错！！")
 			}
