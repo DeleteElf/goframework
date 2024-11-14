@@ -153,7 +153,7 @@ func InitJwtToken(secretKey string) {
 }
 
 // 创建jwt token ，并支持minutes 和iat 默认值，minutes默认是30，iat默认是当前时间的second
-func BuildJwtToken(payload string, minutes float64, iat int64) (string, error) {
+func BuildJwtToken(payload string, minutes int64, iat int64) (string, error) {
 	if iat == 0 {
 		iat = time.Now().Unix()
 	}
