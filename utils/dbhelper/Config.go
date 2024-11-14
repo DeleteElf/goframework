@@ -21,9 +21,10 @@ const (
 type DbConfig struct {
 	ConnectionString string
 	DbType           DbType
-	gorm.Config      //扩展gorm的配置
-	SafeColumn       bool
-	LogLevel         logger.LogLevel
+	//gorm.Config      //扩展gorm的配置
+	SkipDefaultTransaction bool
+	SafeColumn             bool
+	LogLevel               logger.LogLevel
 }
 type DbInterface interface {
 	//打开数据库连接
@@ -153,13 +154,6 @@ func CreateDb(connectionString string, dbType DbType, logLevel logger.LogLevel) 
 
 func CreateDbByConfig(config DbConfig) DbInterface {
 	config.SkipDefaultTransaction = true
-	conf := MyNamingStrategy{
-		ColumnPrefix: "f_",
-	}
-	conf.TablePrefix = "t_"
-	conf.IdentifierMaxLength = 64
-	config.NamingStrategy = conf
-	config.Logger = logger.Default.LogMode(config.LogLevel)
 	switch config.DbType {
 	case Postgres:
 		pg := NewPostgresDB(config)

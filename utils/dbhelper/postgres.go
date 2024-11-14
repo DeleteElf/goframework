@@ -5,6 +5,7 @@ import (
 	"github.com/deleteelf/goframework/utils/stringhelper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type PostgresDB struct {
@@ -22,7 +23,16 @@ func NewPostgresDB(config DbConfig) *PostgresDB {
 
 func (pg *PostgresDB) Open() bool {
 	var err error
-	pg.db, err = gorm.Open(postgres.Open(pg.Config.ConnectionString), &pg.Config)
+	conf := MyNamingStrategy{
+		ColumnPrefix: "f_",
+	}
+	conf.TablePrefix = "t_"
+	conf.IdentifierMaxLength = 64
+	pg.db, err = gorm.Open(postgres.Open(pg.Config.ConnectionString), &gorm.Config{
+		SkipDefaultTransaction: pg.Config.SkipDefaultTransaction,
+		Logger:                 logger.Default.LogMode(pg.Config.LogLevel),
+		NamingStrategy:         conf,
+	})
 	if err != nil {
 		loghelper.GetLogManager().ErrorFormat("数据库连接失败！！%s", pg.Config.ConnectionString)
 		return false
