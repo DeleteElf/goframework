@@ -2,9 +2,12 @@ package dbhelper
 
 import (
 	"github.com/deleteelf/goframework/utils/loghelper"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
+	"strings"
 )
 
 type DbType int
@@ -19,6 +22,8 @@ type DbConfig struct {
 	ConnectionString string
 	DbType           DbType
 	gorm.Config      //扩展gorm的配置
+	SafeColumn       bool
+	LogLevel         logger.LogLevel
 }
 type DbInterface interface {
 	//打开数据库连接
@@ -55,15 +60,107 @@ type DbBase struct {
 	db     *gorm.DB
 }
 
+type MyNamingStrategy struct {
+	schema.NamingStrategy
+
+	ColumnPrefix string
+}
+
+// 重写字段名规则，使其支持f_
+func (ns MyNamingStrategy) ColumnName(table, column string) string {
+	return ns.ColumnPrefix + ns.toDBName(column) //不用进行复数转换
+}
+
+var (
+	// https://github.com/golang/lint/blob/master/lint.go#L770
+	commonInitialisms         = []string{"API", "ASCII", "CPU", "CSS", "DNS", "EOF", "GUID", "HTML", "HTTP", "HTTPS", "ID", "IP", "JSON", "LHS", "QPS", "RAM", "RHS", "RPC", "SLA", "SMTP", "SSH", "TLS", "TTL", "UID", "UI", "UUID", "URI", "URL", "UTF8", "VM", "XML", "XSRF", "XSS"}
+	commonInitialismsReplacer *strings.Replacer
+)
+
+func init() {
+	commonInitialismsForReplacer := make([]string, 0, len(commonInitialisms))
+	for _, initialism := range commonInitialisms {
+		commonInitialismsForReplacer = append(commonInitialismsForReplacer, initialism, cases.Title(language.Und).String(initialism))
+	}
+	commonInitialismsReplacer = strings.NewReplacer(commonInitialismsForReplacer...)
+}
+
+func (ns MyNamingStrategy) toDBName(name string) string {
+	if name == "" {
+		return ""
+	}
+
+	if ns.NameReplacer != nil {
+		tmpName := ns.NameReplacer.Replace(name)
+
+		if tmpName == "" {
+			return name
+		}
+
+		name = tmpName
+	}
+
+	if ns.NoLowerCase {
+		return name
+	}
+
+	var (
+		value                          = commonInitialismsReplacer.Replace(name)
+		buf                            strings.Builder
+		lastCase, nextCase, nextNumber bool // upper case == true
+		curCase                        = value[0] <= 'Z' && value[0] >= 'A'
+	)
+
+	for i, v := range value[:len(value)-1] {
+		nextCase = value[i+1] <= 'Z' && value[i+1] >= 'A'
+		nextNumber = value[i+1] >= '0' && value[i+1] <= '9'
+
+		if curCase {
+			if lastCase && (nextCase || nextNumber) {
+				buf.WriteRune(v + 32)
+			} else {
+				if i > 0 && value[i-1] != '_' && value[i+1] != '_' {
+					buf.WriteByte('_')
+				}
+				buf.WriteRune(v + 32)
+			}
+		} else {
+			buf.WriteRune(v)
+		}
+
+		lastCase = curCase
+		curCase = nextCase
+	}
+
+	if curCase {
+		if !lastCase && len(value) > 1 {
+			buf.WriteByte('_')
+		}
+		buf.WriteByte(value[len(value)-1] + 32)
+	} else {
+		buf.WriteByte(value[len(value)-1])
+	}
+	ret := buf.String()
+	return ret
+}
+
 // 参考： https://gorm.io/docs/gorm_config.html
 func CreateDb(connectionString string, dbType DbType, logLevel logger.LogLevel) DbInterface {
 	config := DbConfig{ConnectionString: connectionString, DbType: dbType}
+	config.LogLevel = logLevel
+	return CreateDbByConfig(config)
+}
+
+func CreateDbByConfig(config DbConfig) DbInterface {
 	config.SkipDefaultTransaction = true
-	config.NamingStrategy = schema.NamingStrategy{
-		TablePrefix: "t_",
+	conf := MyNamingStrategy{
+		ColumnPrefix: "f_",
 	}
-	config.Logger = logger.Default.LogMode(logLevel)
-	switch dbType {
+	conf.TablePrefix = "t_"
+	conf.IdentifierMaxLength = 64
+	config.NamingStrategy = conf
+	config.Logger = logger.Default.LogMode(config.LogLevel)
+	switch config.DbType {
 	case Postgres:
 		pg := NewPostgresDB(config)
 		return pg

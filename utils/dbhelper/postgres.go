@@ -126,6 +126,9 @@ func (pg *PostgresDB) QueryData(sql string, conds ...any) *DataTable {
 		default:
 			break
 		}
+		//if pg.Config.SafeColumn {
+		//	pg.db.Raw(sql, conds...).
+		//}
 	}
 	return result
 }
