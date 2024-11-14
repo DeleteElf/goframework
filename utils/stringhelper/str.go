@@ -1,6 +1,8 @@
 package stringhelper
 
 import (
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"regexp"
 	"strings"
 )
@@ -16,4 +18,20 @@ func ConvertCamelToSnake(camel string, joinStr string) string {
 
 func ConvertCamelToSnakeWithDefault(camel string) string {
 	return ConvertCamelToSnake(camel, "_")
+}
+
+func ConvertToCamel(src string) string {
+	words := strings.Split(src, "_")
+	var result string
+	caser := cases.Title(language.Und, cases.NoLower)
+	for i, word := range words {
+		if i == 0 && len(word) == 1 { //首个前缀只有1个字符，则不进行转换
+			continue
+		}
+		if len(word) == 0 { //如果出现连续__导致的无效长度字符，则不进行转换
+			continue
+		}
+		result += caser.String(word)
+	}
+	return result
 }

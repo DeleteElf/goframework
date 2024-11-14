@@ -2,6 +2,7 @@ package dbhelper
 
 import (
 	"github.com/deleteelf/goframework/utils/loghelper"
+	"github.com/deleteelf/goframework/utils/stringhelper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -115,7 +116,22 @@ func (pg *PostgresDB) QueryData(sql string, conds ...any) *DataTable {
 	result := new(DataTable)
 	if pg.Open() {
 		defer pg.Close()
-		err := pg.db.Raw(sql, conds...).Scan(&result.Rows).Error
+		pg.db.Raw(sql, conds...)
+		if pg.Config.SafeColumn {
+			rows, err := pg.db.Rows()
+			if err != nil {
+				loghelper.GetLogManager().Error("获取行数据出错！！")
+			}
+			columns, err1 := rows.Columns()
+			if err1 != nil {
+				loghelper.GetLogManager().Error("获取列数据出错！！")
+			}
+			pg.db.Statement.ColumnMapping = map[string]string{}
+			for _, column := range columns {
+				pg.db.Statement.ColumnMapping[stringhelper.ConvertToCamel(column)] = column
+			}
+		}
+		err := pg.db.Scan(&result.Rows).Error
 		switch err {
 		case gorm.ErrRecordNotFound:
 			loghelper.GetLogManager().Error("查询的数据不存在！！！")
