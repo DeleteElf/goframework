@@ -128,9 +128,9 @@ func (pg *PostgresDB) QueryData(sql string, conds ...any) *DataTable {
 	result := new(DataTable)
 	if pg.Open() {
 		defer pg.Close()
-		pg.db.Raw(sql, conds...)
+		ctx := pg.db.Raw(sql, conds...)
 		if pg.Config.SafeColumn {
-			rows, err := pg.db.Rows()
+			rows, err := ctx.Rows()
 			defer rows.Close()
 			if err != nil {
 				loghelper.GetLogManager().Error("获取行数据出错！！")
@@ -144,7 +144,7 @@ func (pg *PostgresDB) QueryData(sql string, conds ...any) *DataTable {
 				pg.db.Statement.ColumnMapping[stringhelper.ConvertToCamel(column)] = column
 			}
 		}
-		err := pg.db.Scan(&result.Rows).Error
+		err := ctx.Scan(&result.Rows).Error
 		switch err {
 		case gorm.ErrRecordNotFound:
 			loghelper.GetLogManager().Error("查询的数据不存在！！！")
