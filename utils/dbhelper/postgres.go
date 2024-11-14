@@ -28,6 +28,7 @@ func (pg *PostgresDB) Open() bool {
 	}
 	conf.TablePrefix = "t_"
 	conf.IdentifierMaxLength = 64
+	conf.SingularTable = false
 	pg.db, err = gorm.Open(postgres.Open(pg.Config.ConnectionString), &gorm.Config{
 		SkipDefaultTransaction: pg.Config.SkipDefaultTransaction,
 		Logger:                 logger.Default.LogMode(pg.Config.LogLevel),
