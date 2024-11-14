@@ -24,6 +24,7 @@ func ConvertToCamel(src string) string {
 	words := strings.Split(src, "_")
 	var result string
 	caser := cases.Title(language.Und, cases.NoLower)
+	var hasFirst bool = false
 	for i, word := range words {
 		if i == 0 && len(word) == 1 { //首个前缀只有1个字符，则不进行转换
 			continue
@@ -31,7 +32,12 @@ func ConvertToCamel(src string) string {
 		if len(word) == 0 { //如果出现连续__导致的无效长度字符，则不进行转换
 			continue
 		}
-		result += caser.String(word)
+		if !hasFirst {
+			result += strings.ToLower(word) //首单词不进行大写的支持
+			hasFirst = true
+		} else {
+			result += caser.String(word)
+		}
 	}
 	return result
 }
