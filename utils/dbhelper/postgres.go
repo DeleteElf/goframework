@@ -141,7 +141,7 @@ func (pg *PostgresDB) QueryData(sql string, conds ...any) *DataTable {
 			}
 			ctx.Statement.ColumnMapping = map[string]string{}
 			for _, column := range columns {
-				ctx.Statement.ColumnMapping[stringhelper.ConvertToCamel(column)] = column
+				ctx.Statement.ColumnMapping[column] = stringhelper.ConvertToCamel(column)
 			}
 		}
 		err := ctx.Scan(&result.Rows).Error
