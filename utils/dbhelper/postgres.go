@@ -130,7 +130,7 @@ func (pg *PostgresDB) QueryData(sql string, conds ...any) *DataTable {
 		defer pg.Close()
 		ctx := pg.db.Raw(sql, conds...)
 		if pg.Config.SafeColumn {
-			rows, err := ctx.Rows()
+			rows, err := pg.db.Raw(sql, conds...).Rows()
 			defer rows.Close()
 			if err != nil {
 				loghelper.GetLogManager().Error("获取行数据出错！！")
@@ -139,9 +139,9 @@ func (pg *PostgresDB) QueryData(sql string, conds ...any) *DataTable {
 			if err1 != nil {
 				loghelper.GetLogManager().Error("获取列数据出错！！")
 			}
-			pg.db.Statement.ColumnMapping = map[string]string{}
+			ctx.Statement.ColumnMapping = map[string]string{}
 			for _, column := range columns {
-				pg.db.Statement.ColumnMapping[stringhelper.ConvertToCamel(column)] = column
+				ctx.Statement.ColumnMapping[stringhelper.ConvertToCamel(column)] = column
 			}
 		}
 		err := ctx.Scan(&result.Rows).Error
