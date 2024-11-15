@@ -47,14 +47,23 @@ type DbInterface interface {
 	QueryData(sql string, conds ...any) *DataTable
 }
 
+// 数据表
 type DataTable struct {
+	//行数据集合，key在配置SafeColumn=true时，仅支持驼峰命名法，写入和读取都会按ColumnPrefix自动转换，配置SafeColumn=false时，按key直接映射数据库字段
 	Rows []map[string]interface{}
+	//数据的表名，仅当写入数据时才需要,填写完成的表名
+	TableName string
+	//主键字段名称，如果没有设置，则默认为f_id字段
+	PkColumnName string
+	//字段的前缀，如果没有配置，则默认为为f_
+	ColumnPrefix string
 }
 
 type DbBase struct {
 	//DbInterface
-	Config DbConfig
-	db     *gorm.DB
+	Config          DbConfig
+	db              *gorm.DB
+	isInTransaction bool
 }
 
 //

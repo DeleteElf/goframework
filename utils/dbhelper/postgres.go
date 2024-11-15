@@ -1,12 +1,15 @@
 package dbhelper
 
 import (
+	"errors"
+	"fmt"
 	"github.com/deleteelf/goframework/utils/loghelper"
 	"github.com/deleteelf/goframework/utils/stringhelper"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
+	"strings"
 )
 
 type PostgresDB struct {
@@ -58,22 +61,37 @@ func (pg *PostgresDB) Close() bool {
 }
 
 func (pg *PostgresDB) BeginTransaction() bool {
+	if !pg.isInTransaction {
+		pg.db.Begin()
+		pg.isInTransaction = true
+		return true
+	}
 	return false
 }
 
 // 提交事务
 func (pg *PostgresDB) CommitTransaction() bool {
+	if pg.isInTransaction {
+		pg.db.Commit()
+		pg.isInTransaction = false
+		return true
+	}
 	return false
 }
 
 // 回滚事务
 func (pg *PostgresDB) RollbackTransaction() bool {
+	if pg.isInTransaction {
+		pg.db.Rollback()
+		pg.isInTransaction = false
+		return true
+	}
 	return false
 }
 
 // 是否处于事务中
 func (pg *PostgresDB) IsInTransaction() bool {
-	return false
+	return pg.isInTransaction
 }
 
 func (pg *PostgresDB) AutoMigrate(model ModelInterface) error {
@@ -124,6 +142,7 @@ func (pg *PostgresDB) SelectByCondition(dest interface{}, query string, conds ..
 	}
 }
 
+// 使用原始sql语句查询数据，支持通过配置SafeColumn进行数据字段保护，自动转化为驼峰命名法的字段
 func (pg *PostgresDB) QueryData(sql string, conds ...any) *DataTable {
 	result := new(DataTable)
 	if pg.Open() {
@@ -155,9 +174,50 @@ func (pg *PostgresDB) QueryData(sql string, conds ...any) *DataTable {
 		default:
 			break
 		}
-		//if pg.Config.SafeColumn {
-		//	pg.db.Raw(sql, conds...).
-		//}
 	}
 	return result
+}
+
+// 保存数据表，保存前，需要在数据表中设置表名和主键，仅支持单表数据更新，且数据必须包含主键数据
+// 如需事务支持，请在调用此方法前开启事务，并在完成此方法后，提交或回归事务
+func (pg *PostgresDB) SaveData(dataTale DataTable) (int, error) {
+	if dataTale.Rows == nil || len(dataTale.Rows) == 0 {
+		return 0, nil
+	}
+	if len(dataTale.TableName) == 0 {
+		return 0, errors.New("未设置表名")
+	}
+	if len(dataTale.PkColumnName) == 0 {
+		dataTale.PkColumnName = "f_id"
+	}
+	dataTale.PkColumnName = strings.ToLower(dataTale.PkColumnName)
+	if len(dataTale.ColumnPrefix) == 0 {
+		dataTale.ColumnPrefix = "f_"
+	}
+	sqlFormat := "update %s set %s where %s=?"
+	for i, row := range dataTale.Rows {
+		var columnStr string
+		count := len(row)
+		rowData := make([]any, count)
+		var index int
+		for key, value := range row {
+			columnName := strings.ToLower(dataTale.ColumnPrefix + stringhelper.ConvertCamelToSnakeWithDefault(key))
+			if columnName == dataTale.PkColumnName {
+				rowData[count-1] = value //主键条件直接写到最后一个参数
+				continue
+			}
+			if len(columnStr) != 0 {
+				columnStr += ","
+			}
+			columnStr += columnName + "=?"
+			rowData[index] = value
+			index++
+		}
+		sql := fmt.Sprintf(sqlFormat, dataTale.TableName, columnStr, dataTale.PkColumnName)
+		ctx := pg.db.Exec(sql, rowData...)
+		if ctx.Error != nil {
+			return i, ctx.Error
+		}
+	}
+	return len(dataTale.Rows), nil
 }

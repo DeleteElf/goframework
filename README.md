@@ -1,5 +1,13 @@
 # goframework
-go的框架逻辑，提高复用度
+作者：DeleteElf
+联系邮箱：48207475@qq.com
+
+go的微服务与低代码配置框架，旨在于提高复用度
+支持领域：
+1. 电商平台
+2. 游戏引擎
+3. im系统
+4. 生产平台
 
 通过shell命令行加载本模块
 ```shell
@@ -8,3 +16,8 @@ go env -w GOPRIVATE=github.com/deleteelf
 #拉取模块 
 go get github.com/deleteelf/goframework
 ```
+
+
+### 版本变更日志
+#### 0.1
+1.初始化框架功能逻辑
