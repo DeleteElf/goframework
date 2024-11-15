@@ -105,9 +105,15 @@ func (pg *PostgresDB) AutoMigrate(model ModelInterface) error {
 	return nil
 }
 func (pg *PostgresDB) Save(model ModelInterface) {
-	if pg.Open() {
-		defer pg.Close()
-		pg.db.Save(model)
+	if pg.isInTransaction || pg.Open() { // 如果在事务，不再打开
+		if !pg.isInTransaction { //不在事务，才自动关闭
+			defer pg.Close()
+		}
+		session := pg.db
+		if pg.ctx != nil {
+			session = pg.ctx
+		}
+		session.Save(model)
 	}
 }
 
@@ -116,9 +122,15 @@ func (pg *PostgresDB) SelectById(model ModelInterface, id any) {
 	//t := reflect.TypeFor[T1]()
 	//val := reflect.New(t).Elem()
 	//result := val.Interface().(T1)
-	if pg.Open() {
-		defer pg.Close()
-		err := pg.db.First(model, id).Error
+	if pg.isInTransaction || pg.Open() { // 如果在事务，不再打开
+		if !pg.isInTransaction { //不在事务，才自动关闭
+			defer pg.Close()
+		}
+		session := pg.db
+		if pg.ctx != nil {
+			session = pg.ctx
+		}
+		err := session.First(model, id).Error
 		switch err {
 		case gorm.ErrRecordNotFound:
 			loghelper.GetLogManager().Error("根据Id查询的数据不存在！！！")
@@ -132,9 +144,15 @@ func (pg *PostgresDB) SelectById(model ModelInterface, id any) {
 
 // 根据条件查询数据，dest传入数组指针
 func (pg *PostgresDB) SelectByCondition(dest interface{}, query string, conds ...any) {
-	if pg.Open() {
-		defer pg.Close()
-		err := pg.db.Where(query, conds...).Find(dest).Error
+	if pg.isInTransaction || pg.Open() { // 如果在事务，不再打开
+		if !pg.isInTransaction { //不在事务，才自动关闭
+			defer pg.Close()
+		}
+		session := pg.db
+		if pg.ctx != nil {
+			session = pg.ctx
+		}
+		err := session.Where(query, conds...).Find(dest).Error
 		switch err {
 		case gorm.ErrRecordNotFound:
 			loghelper.GetLogManager().Error("查询的数据不存在！！！")
@@ -152,7 +170,11 @@ func (pg *PostgresDB) QueryData(sql string, conds ...any) *DataTable {
 		if !pg.isInTransaction { //不在事务，才自动关闭
 			defer pg.Close()
 		}
-		ctx := pg.db.Raw(sql, conds...)
+		session := pg.db
+		if pg.ctx != nil {
+			session = pg.ctx
+		}
+		ctx := session.Raw(sql, conds...)
 		if pg.Config.SafeColumn {
 			rows, err := pg.db.Raw(sql, conds...).Rows()
 			defer rows.Close()
@@ -215,68 +237,79 @@ func (pg *PostgresDB) SaveData(dataTale DataTable) (int, error) {
 	insertFormat := "insert into %s (%s) value (%s)"
 	query := fmt.Sprintf(sqlFormat, dataTale.TableName, dataTale.PkColumnName)
 	idKey := stringhelper.ConvertToCamel(dataTale.PkColumnName)
-	for i, row := range dataTale.Rows {
-		//从数据库检索出数据表对应的数据，以决定是新增还是修改
-		isInsert := false
-		if row[idKey] == nil {
-			isInsert = true
-		} else {
-			dt := pg.QueryData(query, row[idKey])
-			if len(dt.Rows) == 0 { //新增
-				isInsert = true
-			}
+
+	if pg.isInTransaction || pg.Open() { // 如果在事务，不再打开
+		if !pg.isInTransaction { //不在事务，才自动关闭
+			defer pg.Close()
 		}
-		var columnStr string
-		count := len(row)
-		rowData := make([]any, count)
-		var index int
-		if isInsert { //新增
-			var valueStr string
-			for key, value := range row {
-				columnName := strings.ToLower(dataTale.ColumnPrefix + stringhelper.ConvertCamelToSnakeWithDefault(key))
-				if len(columnStr) != 0 {
-					columnStr += ","
-					valueStr += ","
+		session := pg.db
+		if pg.ctx != nil {
+			session = pg.ctx
+		}
+
+		for i, row := range dataTale.Rows {
+			//从数据库检索出数据表对应的数据，以决定是新增还是修改
+			isInsert := false
+			if row[idKey] == nil {
+				isInsert = true
+			} else {
+				dt := pg.QueryData(query, row[idKey])
+				if len(dt.Rows) == 0 { //新增
+					isInsert = true
 				}
-				columnStr += columnName
-				valueStr += "?"
-				if columnName == dataTale.CreateTimeColumn || columnName == dataTale.ModifyTimeColumn { //接管，不允许外部写入
-					rowData[index] = time.Now()
-				} else {
-					rowData[index] = value
-				}
-				index++
 			}
-			sql := fmt.Sprintf(insertFormat, dataTale.TableName, columnStr, valueStr)
-			ctx := pg.db.Exec(sql, rowData...)
-			if ctx.Error != nil {
-				return i, ctx.Error
-			}
-		} else {
-			for key, value := range row {
-				columnName := strings.ToLower(dataTale.ColumnPrefix + stringhelper.ConvertCamelToSnakeWithDefault(key))
-				if columnName == dataTale.CreateTimeColumn {
-					continue
+			var columnStr string
+			count := len(row)
+			rowData := make([]any, count)
+			var index int
+			if isInsert { //新增
+				var valueStr string
+				for key, value := range row {
+					columnName := strings.ToLower(dataTale.ColumnPrefix + stringhelper.ConvertCamelToSnakeWithDefault(key))
+					if len(columnStr) != 0 {
+						columnStr += ","
+						valueStr += ","
+					}
+					columnStr += columnName
+					valueStr += "?"
+					if columnName == dataTale.CreateTimeColumn || columnName == dataTale.ModifyTimeColumn { //接管，不允许外部写入
+						rowData[index] = time.Now()
+					} else {
+						rowData[index] = value
+					}
+					index++
 				}
-				if columnName == dataTale.PkColumnName {
-					rowData[count-1] = value //主键条件直接写到最后一个参数
-					continue
+				sql := fmt.Sprintf(insertFormat, dataTale.TableName, columnStr, valueStr)
+				ctx := session.Exec(sql, rowData...)
+				if ctx.Error != nil {
+					return i, ctx.Error
 				}
-				if len(columnStr) != 0 {
-					columnStr += ","
+			} else {
+				for key, value := range row {
+					columnName := strings.ToLower(dataTale.ColumnPrefix + stringhelper.ConvertCamelToSnakeWithDefault(key))
+					if columnName == dataTale.CreateTimeColumn {
+						continue
+					}
+					if columnName == dataTale.PkColumnName {
+						rowData[count-1] = value //主键条件直接写到最后一个参数
+						continue
+					}
+					if len(columnStr) != 0 {
+						columnStr += ","
+					}
+					columnStr += columnName + "=?"
+					if columnName == dataTale.ModifyTimeColumn { //接管，不允许外部写入
+						rowData[index] = time.Now()
+					} else {
+						rowData[index] = value
+					}
+					index++
 				}
-				columnStr += columnName + "=?"
-				if columnName == dataTale.ModifyTimeColumn { //接管，不允许外部写入
-					rowData[index] = time.Now()
-				} else {
-					rowData[index] = value
+				sql := fmt.Sprintf(updateFormat, dataTale.TableName, columnStr, dataTale.PkColumnName)
+				ctx := session.Exec(sql, rowData...)
+				if ctx.Error != nil {
+					return i, ctx.Error
 				}
-				index++
-			}
-			sql := fmt.Sprintf(updateFormat, dataTale.TableName, columnStr, dataTale.PkColumnName)
-			ctx := pg.db.Exec(sql, rowData...)
-			if ctx.Error != nil {
-				return i, ctx.Error
 			}
 		}
 	}
