@@ -57,9 +57,13 @@ type DataTable struct {
 	PkColumnName string
 	//字段的前缀，如果没有配置，则默认为为f_
 	ColumnPrefix string
+	//创建时间的字段名，默认为f_create_time
+	CreateTimeColumn string
+	//修改时间的字段名，默认为f_modify_time
+	ModifyTimeColumn string
 }
-
 type DbBase struct {
+
 	//DbInterface
 	Config          DbConfig
 	db              *gorm.DB

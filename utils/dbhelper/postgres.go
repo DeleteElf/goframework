@@ -10,6 +10,7 @@ import (
 	"gorm.io/gorm/logger"
 	"gorm.io/gorm/schema"
 	"strings"
+	"time"
 )
 
 type PostgresDB struct {
@@ -191,32 +192,88 @@ func (pg *PostgresDB) SaveData(dataTale DataTable) (int, error) {
 		dataTale.PkColumnName = "f_id"
 	}
 	dataTale.PkColumnName = strings.ToLower(dataTale.PkColumnName)
+
+	if len(dataTale.CreateTimeColumn) == 0 {
+		dataTale.CreateTimeColumn = "f_create_time"
+	}
+	dataTale.CreateTimeColumn = strings.ToLower(dataTale.CreateTimeColumn)
+
+	if len(dataTale.ModifyTimeColumn) == 0 {
+		dataTale.ModifyTimeColumn = "f_modify_time"
+	}
+	dataTale.ModifyTimeColumn = strings.ToLower(dataTale.ModifyTimeColumn)
+
 	if len(dataTale.ColumnPrefix) == 0 {
 		dataTale.ColumnPrefix = "f_"
 	}
-	sqlFormat := "update %s set %s where %s=?"
+	sqlFormat := "select * from %s where %s=?"
+	updateFormat := "update %s set %s where %s=?"
+	insertFormat := "insert into %s (%s) value (%s)"
+	query := fmt.Sprintf(sqlFormat, dataTale.TableName, dataTale.PkColumnName)
+	idKey := stringhelper.ConvertToCamel(dataTale.PkColumnName)
 	for i, row := range dataTale.Rows {
+		//从数据库检索出数据表对应的数据，以决定是新增还是修改
+		isInsert := false
+		if row[idKey] == nil {
+			isInsert = true
+		} else {
+			dt := pg.QueryData(query, row[idKey])
+			if len(dt.Rows) == 0 { //新增
+				isInsert = true
+			}
+		}
 		var columnStr string
 		count := len(row)
 		rowData := make([]any, count)
 		var index int
-		for key, value := range row {
-			columnName := strings.ToLower(dataTale.ColumnPrefix + stringhelper.ConvertCamelToSnakeWithDefault(key))
-			if columnName == dataTale.PkColumnName {
-				rowData[count-1] = value //主键条件直接写到最后一个参数
-				continue
+		if isInsert { //新增
+			var valueStr string
+			for key, value := range row {
+				columnName := strings.ToLower(dataTale.ColumnPrefix + stringhelper.ConvertCamelToSnakeWithDefault(key))
+				if len(columnStr) != 0 {
+					columnStr += ","
+					valueStr += ","
+				}
+				columnStr += columnName
+				valueStr += "?"
+				if columnName == dataTale.CreateTimeColumn || columnName == dataTale.ModifyTimeColumn { //接管，不允许外部写入
+					rowData[index] = time.Now()
+				} else {
+					rowData[index] = value
+				}
+				index++
 			}
-			if len(columnStr) != 0 {
-				columnStr += ","
+			sql := fmt.Sprintf(insertFormat, dataTale.TableName, columnStr, valueStr)
+			ctx := pg.db.Exec(sql, rowData...)
+			if ctx.Error != nil {
+				return i, ctx.Error
 			}
-			columnStr += columnName + "=?"
-			rowData[index] = value
-			index++
-		}
-		sql := fmt.Sprintf(sqlFormat, dataTale.TableName, columnStr, dataTale.PkColumnName)
-		ctx := pg.db.Exec(sql, rowData...)
-		if ctx.Error != nil {
-			return i, ctx.Error
+		} else {
+			for key, value := range row {
+				columnName := strings.ToLower(dataTale.ColumnPrefix + stringhelper.ConvertCamelToSnakeWithDefault(key))
+				if columnName == dataTale.CreateTimeColumn {
+					continue
+				}
+				if columnName == dataTale.PkColumnName {
+					rowData[count-1] = value //主键条件直接写到最后一个参数
+					continue
+				}
+				if len(columnStr) != 0 {
+					columnStr += ","
+				}
+				columnStr += columnName + "=?"
+				if columnName == dataTale.ModifyTimeColumn { //接管，不允许外部写入
+					rowData[index] = time.Now()
+				} else {
+					rowData[index] = value
+				}
+				index++
+			}
+			sql := fmt.Sprintf(updateFormat, dataTale.TableName, columnStr, dataTale.PkColumnName)
+			ctx := pg.db.Exec(sql, rowData...)
+			if ctx.Error != nil {
+				return i, ctx.Error
+			}
 		}
 	}
 	return len(dataTale.Rows), nil
