@@ -63,7 +63,7 @@ func (pg *PostgresDB) Close() bool {
 
 func (pg *PostgresDB) BeginTransaction() bool {
 	if !pg.isInTransaction {
-		pg.db.Begin()
+		pg.ctx = pg.db.Begin()
 		pg.isInTransaction = true
 		return true
 	}
@@ -74,6 +74,7 @@ func (pg *PostgresDB) BeginTransaction() bool {
 func (pg *PostgresDB) CommitTransaction() bool {
 	if pg.isInTransaction {
 		pg.db.Commit()
+		pg.ctx = nil
 		pg.isInTransaction = false
 		return true
 	}
@@ -84,6 +85,7 @@ func (pg *PostgresDB) CommitTransaction() bool {
 func (pg *PostgresDB) RollbackTransaction() bool {
 	if pg.isInTransaction {
 		pg.db.Rollback()
+		pg.ctx = nil
 		pg.isInTransaction = false
 		return true
 	}
@@ -146,8 +148,10 @@ func (pg *PostgresDB) SelectByCondition(dest interface{}, query string, conds ..
 // 使用原始sql语句查询数据，支持通过配置SafeColumn进行数据字段保护，自动转化为驼峰命名法的字段
 func (pg *PostgresDB) QueryData(sql string, conds ...any) *DataTable {
 	result := new(DataTable)
-	if pg.Open() {
-		defer pg.Close()
+	if pg.isInTransaction || pg.Open() { // 如果在事务，不再打开
+		if !pg.isInTransaction { //不在事务，才自动关闭
+			defer pg.Close()
+		}
 		ctx := pg.db.Raw(sql, conds...)
 		if pg.Config.SafeColumn {
 			rows, err := pg.db.Raw(sql, conds...).Rows()

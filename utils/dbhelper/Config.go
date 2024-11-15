@@ -63,10 +63,10 @@ type DataTable struct {
 	ModifyTimeColumn string
 }
 type DbBase struct {
-
 	//DbInterface
 	Config          DbConfig
 	db              *gorm.DB
+	ctx             *gorm.DB
 	isInTransaction bool
 }
 
