@@ -28,30 +28,30 @@ func (model Model) TableName() string {
 
 type Bean[T IdData] struct {
 	Model
-	Id         T         `gorm:"column:f_id;primaryKey"` //默认会使用Id作为主键
-	Active     bool      `gorm:"column:f_active;default:true"`
-	CreateTime time.Time `gorm:"column:f_create_time;default:now()"` //默认当前时间
-	ModifyTime time.Time `gorm:"column:f_modify_time;default:now()"`
-	Remark     *string   `gorm:"column:f_remark"` //定义指针是为了支持空值
+	Id         T         `gorm:"column:f_id;primaryKey" json:"id"` //默认会使用Id作为主键
+	Active     bool      `gorm:"column:f_active;default:true" json:"active"`
+	CreateTime time.Time `gorm:"column:f_create_time;default:now()" json:"createTime"` //默认当前时间
+	ModifyTime time.Time `gorm:"column:f_modify_time;default:now()" json:"modifyTime"`
+	Remark     *string   `gorm:"column:f_remark" json:"remark"` //定义指针是为了支持空值
 }
 
 type Entity struct {
-	Name string `gorm:"column:f_name;type:varchar(20);"` //定义有名称的实体
+	Name string `gorm:"column:f_name;type:varchar(20);" json:"name"` //定义有名称的实体
 }
 
 type Parent[T IdData] struct {
 	//ParentChildrenInterface
-	Parent T `gorm:"column:f_parent_id"` //定义有父子关系的结构
+	Parent T `gorm:"column:f_parent_id" json:"parent"` //定义有父子关系的结构
 }
 
 // 系统用户
 type UserInfo struct {
 	Bean[int]         //匿名扩展
 	Entity            //扁平式扩展，而非继承
-	Account   string  `gorm:"column:f_account;type:varchar(20);not null"`
-	Password  string  `gorm:"column:f_password;type:varchar(35);not null"`
-	Email     *string `gorm:"column:f_email;type:varchar(30);"`     //定义指针是为了支持空值
-	Telephone *string `gorm:"column:f_telephone;type:varchar(20);"` //定义有名称的实体
+	Account   string  `gorm:"column:f_account;type:varchar(20);not null" json:"account"`
+	Password  string  `gorm:"column:f_password;type:varchar(35);not null" json:"password"`
+	Email     *string `gorm:"column:f_email;type:varchar(30);" json:"email"`         //定义指针是为了支持空值
+	Telephone *string `gorm:"column:f_telephone;type:varchar(20);" json:"telephone"` //定义有名称的实体
 }
 
 // 系统用户的表名定义
