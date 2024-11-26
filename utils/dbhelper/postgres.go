@@ -219,7 +219,7 @@ func (pg *PostgresDB) QueryData(sql string, conds ...any) *DataTable {
 
 // 保存数据表，保存前，需要在数据表中设置表名和主键，仅支持单表数据更新，且数据必须包含主键数据
 // 如需事务支持，请在调用此方法前开启事务，并在完成此方法后，提交或回归事务
-func (pg *PostgresDB) SaveData(dataTale DataTable) (int, error) {
+func (pg *PostgresDB) SaveData(dataTale *DataTable) (int, error) {
 	if dataTale.Rows == nil || len(dataTale.Rows) == 0 {
 		return 0, nil
 	}
@@ -241,15 +241,19 @@ func (pg *PostgresDB) SaveData(dataTale DataTable) (int, error) {
 	}
 	dataTale.ModifyTimeColumn = strings.ToLower(dataTale.ModifyTimeColumn)
 
-	if len(dataTale.ColumnPrefix) == 0 {
-		dataTale.ColumnPrefix = "f_"
+	if dataTale.ColumnPrefix == nil {
+		str := "f_"
+		dataTale.ColumnPrefix = &str
 	}
 	sqlFormat := "select * from %s where %s=?"
 	updateFormat := "update %s set %s where %s=?"
-	insertFormat := "insert into %s (%s) value (%s)"
+	insertFormat := "insert into %s (%s) values (%s)"
 	query := fmt.Sprintf(sqlFormat, dataTale.TableName, dataTale.PkColumnName)
-	idKey := stringhelper.ConvertToCamel(dataTale.PkColumnName)
 
+	idKey := dataTale.PkColumnName
+	if pg.Config.SafeColumn {
+		idKey = stringhelper.ConvertToCamel(dataTale.PkColumnName)
+	}
 	if pg.isInTransaction || pg.Open() { // 如果在事务，不再打开
 		if !pg.isInTransaction { //不在事务，才自动关闭
 			defer pg.Close()
@@ -271,13 +275,16 @@ func (pg *PostgresDB) SaveData(dataTale DataTable) (int, error) {
 				}
 			}
 			var columnStr string
-			count := len(row)
+			count := len(row) - 1 //创建时间，永远不能提交
 			rowData := make([]any, count)
 			var index int
 			if isInsert { //新增
 				var valueStr string
 				for key, value := range row {
-					columnName := strings.ToLower(dataTale.ColumnPrefix + stringhelper.ConvertCamelToSnakeWithDefault(key))
+					columnName := strings.ToLower(*dataTale.ColumnPrefix + stringhelper.ConvertCamelToSnakeWithDefault(key))
+					if columnName == dataTale.CreateTimeColumn {
+						continue
+					}
 					if len(columnStr) != 0 {
 						columnStr += ","
 						valueStr += ","
@@ -298,7 +305,7 @@ func (pg *PostgresDB) SaveData(dataTale DataTable) (int, error) {
 				}
 			} else {
 				for key, value := range row {
-					columnName := strings.ToLower(dataTale.ColumnPrefix + stringhelper.ConvertCamelToSnakeWithDefault(key))
+					columnName := strings.ToLower(*dataTale.ColumnPrefix + stringhelper.ConvertCamelToSnakeWithDefault(key))
 					if columnName == dataTale.CreateTimeColumn {
 						continue
 					}

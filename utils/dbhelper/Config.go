@@ -48,6 +48,8 @@ type DbInterface interface {
 	SelectByCondition(dest interface{}, condition string, conds ...any)
 	//查询数据
 	QueryData(sql string, conds ...any) *DataTable
+	//保存数据，提交的dataTable需要设置表名
+	SaveData(dataTale *DataTable) (int, error)
 }
 
 // 数据表
@@ -59,7 +61,7 @@ type DataTable struct {
 	//主键字段名称，如果没有设置，则默认为f_id字段
 	PkColumnName string
 	//字段的前缀，如果没有配置，则默认为为f_
-	ColumnPrefix string
+	ColumnPrefix *string
 	//创建时间的字段名，默认为f_create_time
 	CreateTimeColumn string
 	//修改时间的字段名，默认为f_modify_time
