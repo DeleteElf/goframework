@@ -1,6 +1,6 @@
 # goframework
-作者：DeleteElf
-联系邮箱：48207475@qq.com
+- 作者：DeleteElf
+- 联系邮箱：48207475@qq.com
 
 go的微服务与低代码配置框架，旨在于提高复用度
 支持领域：

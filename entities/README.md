@@ -1,3 +1,3 @@
-# services 业务组件
+# entities 实体对象
 - 作者：DeleteElf
 - 联系邮箱：48207475@qq.com
