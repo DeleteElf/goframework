@@ -64,7 +64,16 @@ func (pg *PostgresDB) Close() bool {
 
 func (pg *PostgresDB) TransactionCallback(fc func(tx *gorm.DB) error, opts ...*sql.TxOptions) (bool, error) {
 	//if !pg.isInTransaction {
-	err := pg.db.Transaction(fc, opts...)
+	pg.Open()
+	err := pg.db.Transaction(func(session *gorm.DB) error {
+		pg.isInTransaction = true
+		pg.ctx = session
+		err := fc(session)
+		pg.isInTransaction = false
+		pg.ctx = nil
+		return err
+	}, opts...)
+	pg.Close()
 	if err != nil {
 		return false, err
 	}
