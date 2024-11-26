@@ -15,6 +15,8 @@ go的微服务与低代码配置框架，旨在于提高复用度
 go env -w GOPRIVATE=github.com/deleteelf
 #拉取模块 
 go get github.com/deleteelf/goframework
+#清理一下代码区域，防止刚拉的代码，被就代码搞混乱了
+go mod tidy
 ```
 
 
