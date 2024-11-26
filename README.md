@@ -20,6 +20,15 @@ go mod tidy
 ```
 
 
+```go
+loghelper 日志工具类，如果没有初始化级别，默认初始化warn级别日志
+stringhelper 字符串帮助类
+httphelper http工具栏
+dbhelper 基于gorm的orm体系数据库操作工具类
+
+```
+
+
 ### 版本变更日志
 #### 0.1
 1.初始化框架功能逻辑
