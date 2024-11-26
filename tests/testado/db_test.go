@@ -1,4 +1,4 @@
-package goframework
+package testado
 
 import (
 	"encoding/json"
