@@ -1,7 +1,8 @@
-package dbhelper
+package ado
 
 import (
 	"database/sql"
+	"github.com/deleteelf/goframework/entities"
 	"github.com/deleteelf/goframework/utils/loghelper"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -39,11 +40,11 @@ type DbInterface interface {
 	//是否处于事务中
 	IsInTransaction() bool
 	//自动更新表结构，慎重使用此方法
-	AutoMigrate(model ModelInterface) error
+	AutoMigrate(model entities.ModelInterface) error
 	//保存或更新数据
-	Save(model ModelInterface)
+	Save(model entities.ModelInterface)
 	//根据id查询对象数据
-	SelectById(model ModelInterface, id any)
+	SelectById(model entities.ModelInterface, id any)
 	//根据条件查询对象数据
 	SelectByCondition(dest interface{}, condition string, conds ...any)
 	//查询数据

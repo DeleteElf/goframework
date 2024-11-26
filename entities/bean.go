@@ -1,4 +1,4 @@
-package dbhelper
+package entities
 
 import (
 	"github.com/deleteelf/goframework/utils/stringhelper"

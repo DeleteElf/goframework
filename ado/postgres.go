@@ -1,9 +1,10 @@
-package dbhelper
+package ado
 
 import (
 	"database/sql"
 	"errors"
 	"fmt"
+	"github.com/deleteelf/goframework/entities"
 	"github.com/deleteelf/goframework/utils/loghelper"
 	"github.com/deleteelf/goframework/utils/stringhelper"
 	"gorm.io/driver/postgres"
@@ -118,14 +119,14 @@ func (pg *PostgresDB) IsInTransaction() bool {
 	return pg.isInTransaction
 }
 
-func (pg *PostgresDB) AutoMigrate(model ModelInterface) error {
+func (pg *PostgresDB) AutoMigrate(model entities.ModelInterface) error {
 	if pg.Open() {
 		defer pg.Close()
 		return pg.db.AutoMigrate(model)
 	}
 	return nil
 }
-func (pg *PostgresDB) Save(model ModelInterface) {
+func (pg *PostgresDB) Save(model entities.ModelInterface) {
 	if pg.isInTransaction || pg.Open() { // 如果在事务，不再打开
 		if !pg.isInTransaction { //不在事务，才自动关闭
 			defer pg.Close()
@@ -138,7 +139,7 @@ func (pg *PostgresDB) Save(model ModelInterface) {
 	}
 }
 
-func (pg *PostgresDB) SelectById(model ModelInterface, id any) {
+func (pg *PostgresDB) SelectById(model entities.ModelInterface, id any) {
 	//反射的案例，不过gorm已经做好反射了
 	//t := reflect.TypeFor[T1]()
 	//val := reflect.New(t).Elem()

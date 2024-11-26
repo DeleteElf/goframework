@@ -3,7 +3,7 @@ package goframework
 import (
 	"encoding/json"
 	"errors"
-	"github.com/deleteelf/goframework/utils/dbhelper"
+	"github.com/deleteelf/goframework/ado"
 	"github.com/deleteelf/goframework/utils/loghelper"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -14,7 +14,7 @@ import (
 func TestSelect(t *testing.T) {
 	ctr := "host=localhost user=postgres dbname=test password=test123 port=5432 sslmode=disable"
 	loghelper.GetLogManager().Init(loghelper.Debug)
-	dbCon := dbhelper.CreateDb(ctr, dbhelper.Postgres, logger.Info)
+	dbCon := ado.CreateDb(ctr, ado.Postgres, logger.Info)
 	dataTable := dbCon.QueryData(`SELECT * FROM t_user_info where f_id = ?`, 1)
 	jsonData, err := json.Marshal(dataTable.Rows)
 	if err != nil {
@@ -27,7 +27,7 @@ func TestTransaction(t *testing.T) {
 	ctr := "host=localhost user=postgres dbname=test password=test123 port=5432 sslmode=disable"
 	loghelper.GetLogManager().Init(loghelper.Debug)
 
-	dbCon := dbhelper.CreateDb(ctr, dbhelper.Postgres, logger.Info)
+	dbCon := ado.CreateDb(ctr, ado.Postgres, logger.Info)
 	dataTable := dbCon.QueryData(`SELECT * FROM t_user_info where f_id = ?`, 1)
 	jsonData, err := json.Marshal(dataTable.Rows)
 	if err != nil {
@@ -71,7 +71,7 @@ func TestTransactionCallback(t *testing.T) {
 	ctr := "host=localhost user=postgres dbname=test password=test123 port=5432 sslmode=disable"
 	loghelper.GetLogManager().Init(loghelper.Debug)
 
-	dbCon := dbhelper.CreateDb(ctr, dbhelper.Postgres, logger.Info)
+	dbCon := ado.CreateDb(ctr, ado.Postgres, logger.Info)
 	dataTable := dbCon.QueryData(`SELECT * FROM t_user_info where f_id = ?`, 1)
 	jsonData, err := json.Marshal(dataTable.Rows)
 	if err != nil {
