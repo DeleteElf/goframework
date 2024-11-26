@@ -1,6 +1,7 @@
 package dbhelper
 
 import (
+	"database/sql"
 	"github.com/deleteelf/goframework/utils/loghelper"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -33,6 +34,8 @@ type DbInterface interface {
 	CommitTransaction() bool
 	//回滚事务
 	RollbackTransaction() bool
+	//事务回调函数，会自动begin，并且如果有错误，会自动执行rollback，如果没有错误，自动执行commit
+	TransactionCallback(fc func(tx *gorm.DB) error, opts ...*sql.TxOptions) (bool, error)
 	//是否处于事务中
 	IsInTransaction() bool
 	//自动更新表结构，慎重使用此方法

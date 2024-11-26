@@ -1,6 +1,7 @@
 package dbhelper
 
 import (
+	"database/sql"
 	"errors"
 	"fmt"
 	"github.com/deleteelf/goframework/utils/loghelper"
@@ -59,6 +60,17 @@ func (pg *PostgresDB) Close() bool {
 		return false
 	}
 	return true
+}
+
+func (pg *PostgresDB) TransactionCallback(fc func(tx *gorm.DB) error, opts ...*sql.TxOptions) (bool, error) {
+	//if !pg.isInTransaction {
+	err := pg.db.Transaction(fc, opts...)
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+	//}
+	//return false, errors.New("当前上下文已经处于事务中！")
 }
 
 func (pg *PostgresDB) BeginTransaction() bool {
