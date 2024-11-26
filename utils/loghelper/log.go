@@ -1,7 +1,6 @@
 package loghelper
 
 import (
-	"fmt"
 	"log"
 )
 
@@ -57,8 +56,9 @@ func (logM *LogManager) PrintFormat(level LogLevel, messageFormat string, args .
 	//logc.Debugf(log.ctx, messageFormat, args...)
 	if logM.Level >= level {
 		log.SetPrefix(logM.levels[level])
-		message := fmt.Sprintf(messageFormat, args...)
-		log.Println(message)
+		log.Printf(messageFormat, args...)
+		//message := fmt.Sprintf(messageFormat, args...)
+		//log.Println(message)
 	}
 }
 
