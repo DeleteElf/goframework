@@ -1,4 +1,4 @@
-# goframework
+# goframework go的微服务与低代码配置框架，旨在于提高复用度
 - 作者：DeleteElf
 - 联系邮箱：48207475@qq.com
 
@@ -6,7 +6,6 @@
 [链接1](https://dash.xfltd.app/register?code=KXZSOGgs "点击跳转")
 [链接2](https://xfltd.net/#/register?code=KXZSOGgs)
 
-go的微服务与低代码配置框架，旨在于提高复用度
 #### 支持领域：
 1. 电商平台
 2. 游戏引擎
@@ -24,7 +23,8 @@ go的微服务与低代码配置框架，旨在于提高复用度
 
 通过shell命令行加载本模块
 ```shell
-#github上public的项目，无需设置这个，但如果要访问私有项目，则可以如下方式设置这个账户下的不走代理，不走代理需要使用梯子
+# github上public的项目，无需设置这个
+# 如果要访问私有项目，则可以如下方式设置这个账户下的不走代理，不走代理需要使用梯子
 go env -w GOPRIVATE=github.com/deleteelf
 #拉取模块 
 go get github.com/deleteelf/goframework
