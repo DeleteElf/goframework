@@ -64,23 +64,24 @@ func (pg *PostgresDB) Close() bool {
 }
 
 func (pg *PostgresDB) TransactionCallback(fc func(tx *gorm.DB) error, opts ...*sql.TxOptions) (bool, error) {
-	//if !pg.isInTransaction {
-	pg.Open()
-	err := pg.db.Transaction(func(session *gorm.DB) error {
-		pg.isInTransaction = true
-		pg.ctx = session
-		err := fc(session)
-		pg.isInTransaction = false
-		pg.ctx = nil
-		return err
-	}, opts...)
-	pg.Close()
-	if err != nil {
-		return false, err
+	if pg.Open() {
+		defer func() {
+			pg.Close()
+		}()
+		err := pg.db.Transaction(func(session *gorm.DB) error {
+			pg.isInTransaction = true
+			pg.ctx = session
+			err := fc(session)
+			pg.isInTransaction = false
+			pg.ctx = nil
+			return err
+		}, opts...)
+		if err != nil {
+			return false, err
+		}
+		return true, nil
 	}
-	return true, nil
-	//}
-	//return false, errors.New("当前上下文已经处于事务中！")
+	return false, nil
 }
 
 func (pg *PostgresDB) BeginTransaction() bool {
