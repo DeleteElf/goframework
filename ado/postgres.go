@@ -30,12 +30,6 @@ func NewPostgresDB(config DbConfig) *PostgresDB {
 
 func (pg *PostgresDB) Open() bool {
 	var err error
-	//conf := MyNamingStrategy{
-	//	ColumnPrefix: "f_",
-	//}
-	//conf.TablePrefix = "t_"
-	//conf.IdentifierMaxLength = 64
-	//conf.SingularTable = false
 	pg.db, err = gorm.Open(postgres.Open(pg.Config.ConnectionString), &gorm.Config{
 		SkipDefaultTransaction: pg.Config.SkipDefaultTransaction,
 		Logger:                 logger.Default.LogMode(pg.Config.LogLevel),
@@ -127,15 +121,21 @@ func (pg *PostgresDB) AutoMigrate(model entities.ModelInterface) error {
 	}
 	return nil
 }
+
+func (pg *PostgresDB) handleSession() *gorm.DB {
+	session := pg.db
+	if pg.ctx != nil {
+		session = pg.ctx
+	}
+	return session
+}
+
 func (pg *PostgresDB) Save(model entities.ModelInterface) {
 	if pg.isInTransaction || pg.Open() { // 如果在事务，不再打开
 		if !pg.isInTransaction { //不在事务，才自动关闭
 			defer pg.Close()
 		}
-		session := pg.db
-		if pg.ctx != nil {
-			session = pg.ctx
-		}
+		session := pg.handleSession()
 		session.Save(model)
 	}
 }
@@ -149,10 +149,7 @@ func (pg *PostgresDB) SelectById(model entities.ModelInterface, id any) {
 		if !pg.isInTransaction { //不在事务，才自动关闭
 			defer pg.Close()
 		}
-		session := pg.db
-		if pg.ctx != nil {
-			session = pg.ctx
-		}
+		session := pg.handleSession()
 		err := session.First(model, id).Error
 		switch err {
 		case gorm.ErrRecordNotFound:
@@ -171,10 +168,7 @@ func (pg *PostgresDB) SelectByCondition(dest interface{}, query string, conds ..
 		if !pg.isInTransaction { //不在事务，才自动关闭
 			defer pg.Close()
 		}
-		session := pg.db
-		if pg.ctx != nil {
-			session = pg.ctx
-		}
+		session := pg.handleSession()
 		err := session.Where(query, conds...).Find(dest).Error
 		switch err {
 		case gorm.ErrRecordNotFound:
@@ -193,10 +187,7 @@ func (pg *PostgresDB) QueryData(sql string, conds ...any) *DataTable {
 		if !pg.isInTransaction { //不在事务，才自动关闭
 			defer pg.Close()
 		}
-		session := pg.db
-		if pg.ctx != nil {
-			session = pg.ctx
-		}
+		session := pg.handleSession()
 		ctx := session.Raw(sql, conds...)
 		if pg.Config.SafeColumn {
 			rows, err := pg.db.Raw(sql, conds...).Rows()
@@ -230,7 +221,7 @@ func (pg *PostgresDB) QueryData(sql string, conds ...any) *DataTable {
 
 // 保存数据表，保存前，需要在数据表中设置表名和主键，仅支持单表数据更新，且数据必须包含主键数据
 // 如需事务支持，请在调用此方法前开启事务，并在完成此方法后，提交或回归事务
-func (pg *PostgresDB) SaveData(dataTale *DataTable) (int, error) {
+func (pg *PostgresDB) SaveData(dataTale *DataTable) (int64, error) {
 	if dataTale.Rows == nil || len(dataTale.Rows) == 0 {
 		return 0, nil
 	}
@@ -265,16 +256,13 @@ func (pg *PostgresDB) SaveData(dataTale *DataTable) (int, error) {
 	if pg.Config.SafeColumn {
 		idKey = stringhelper.ConvertToCamel(dataTale.PkColumnName)
 	}
+	var rowsAffected int64 = 0
 	if pg.isInTransaction || pg.Open() { // 如果在事务，不再打开
 		if !pg.isInTransaction { //不在事务，才自动关闭
 			defer pg.Close()
 		}
-		session := pg.db
-		if pg.ctx != nil {
-			session = pg.ctx
-		}
-
-		for i, row := range dataTale.Rows {
+		session := pg.handleSession()
+		for _, row := range dataTale.Rows {
 			//从数据库检索出数据表对应的数据，以决定是新增还是修改
 			isInsert := false
 			if row[idKey] == nil {
@@ -312,8 +300,9 @@ func (pg *PostgresDB) SaveData(dataTale *DataTable) (int, error) {
 				sql := fmt.Sprintf(insertFormat, dataTale.TableName, columnStr, valueStr)
 				ctx := session.Exec(sql, rowData...)
 				if ctx.Error != nil {
-					return i, ctx.Error
+					return rowsAffected, ctx.Error
 				}
+				rowsAffected += ctx.RowsAffected
 			} else {
 				for key, value := range row {
 					columnName := strings.ToLower(*dataTale.ColumnPrefix + stringhelper.ConvertCamelToSnakeWithDefault(key))
@@ -338,10 +327,11 @@ func (pg *PostgresDB) SaveData(dataTale *DataTable) (int, error) {
 				sql := fmt.Sprintf(updateFormat, dataTale.TableName, columnStr, dataTale.PkColumnName)
 				ctx := session.Exec(sql, rowData...)
 				if ctx.Error != nil {
-					return i, ctx.Error
+					return rowsAffected, ctx.Error
 				}
+				rowsAffected += ctx.RowsAffected
 			}
 		}
 	}
-	return len(dataTale.Rows), nil
+	return rowsAffected, nil
 }
