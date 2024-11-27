@@ -50,7 +50,7 @@ type DbInterface interface {
 	//查询数据
 	QueryData(sql string, conds ...any) *DataTable
 	//保存数据，提交的dataTable需要设置表名
-	SaveData(dataTale *DataTable) (int, error)
+	SaveData(dataTale *DataTable) (int64, error)
 }
 
 // 数据表
