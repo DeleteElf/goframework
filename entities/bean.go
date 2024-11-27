@@ -49,7 +49,7 @@ type UserInfo struct {
 	Bean[int]         //匿名扩展
 	Entity            //扁平式扩展，而非继承
 	Account   string  `gorm:"column:f_account;type:varchar(20);not null" json:"account"`
-	Password  string  `gorm:"column:f_password;type:varchar(35);not null" json:"password"`
+	Password  string  `gorm:"column:f_password;type:varchar(35);not null" json:"-"`  //密码不允许对外输出
 	Email     *string `gorm:"column:f_email;type:varchar(30);" json:"email"`         //定义指针是为了支持空值
 	Telephone *string `gorm:"column:f_telephone;type:varchar(20);" json:"telephone"` //定义有名称的实体
 }
