@@ -2,12 +2,25 @@
 - 作者：DeleteElf
 - 联系邮箱：48207475@qq.com
 
+访问外网如果有困难，可以使用翻墙梯子 XFLDT(主打比较便宜稳定)，并使用Clash进行访问
+[链接1](https://dash.xfltd.app/register?code=KXZSOGgs "点击跳转")
+[链接2](https://xfltd.net/#/register?code=KXZSOGgs)
+
 go的微服务与低代码配置框架，旨在于提高复用度
-支持领域：
+#### 支持领域：
 1. 电商平台
 2. 游戏引擎
 3. im系统
 4. 生产平台
+
+#### 相关项目示例
+示例暂未对外开放，如有需要，请联系作者
+##### 非GRPC项目
+[单服务示例]: https://github.com/DeleteElf/GoWebSite "点击跳转"
+
+##### GRPC项目
+[GRPC服务端示例]: https://github.com/DeleteElf/goetcdserver "点击跳转"
+[GRPC客户端示例]: https://github.com/DeleteElf/goetcdclient "点击跳转"
 
 通过shell命令行加载本模块
 ```shell
