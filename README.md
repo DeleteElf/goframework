@@ -37,7 +37,7 @@ go mod tidy
 loghelper 日志工具类，如果没有初始化级别，默认初始化warn级别日志
 stringhelper 字符串帮助类
 httphelper http工具栏
-ado 基于gorm的orm体系数据库操作类
+ado 基于gorm的orm体系数据库操作类，同时实现非orm体系支持，以减少model生成需要，减少代码量，最终达到低代码的需求
 entities 实体类，一些常用的对象关系基类，可用于扩展属性
 
 ```
