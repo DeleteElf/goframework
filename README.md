@@ -3,8 +3,8 @@
 - 联系邮箱：48207475@qq.com
 
 访问外网如果有困难，可以使用翻墙梯子 XFLDT(主打比较便宜稳定)，并使用Clash进行访问
-[链接1](https://dash.xfltd.app/register?code=KXZSOGgs "点击跳转")
-[链接2](https://xfltd.net/#/register?code=KXZSOGgs)
+[链接1](https://dash.xfltd.app/register?code=KXZSOGgs "点击跳转"){target="_blank"}
+[链接2](https://xfltd.net/#/register?code=KXZSOGgs){target="_blank"}
 
 go的微服务与低代码配置框架，旨在于提高复用度
 #### 支持领域：
