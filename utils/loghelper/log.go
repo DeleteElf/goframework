@@ -2,6 +2,7 @@ package loghelper
 
 import (
 	"log"
+	"runtime"
 )
 
 type LogLevel int
@@ -42,7 +43,20 @@ func GetLogManager() *LogManager {
 
 func (logM *LogManager) Init(lvl LogLevel) {
 	logM.Level = lvl
-	log.SetFlags(log.Ldate | log.Lmicroseconds | log.Lshortfile)
+	log.SetFlags(log.Ldate | log.Lmicroseconds)
+}
+
+func StackTrace(all bool) string {
+	buf := make([]byte, 10240)
+	for {
+		size := runtime.Stack(buf, all)
+		if size == len(buf) {
+			buf = make([]byte, len(buf)<<1)
+			continue
+		}
+		break
+	}
+	return string(buf)
 }
 
 func (logM *LogManager) Println(level LogLevel, message any) {
@@ -100,6 +114,7 @@ func (logM *LogManager) WarnFormat(messageFormat string, args ...any) {
 func (logM *LogManager) Error(message any) {
 	//logc.Errorv(log.ctx, message)
 	logM.Println(Error, message)
+	log.Println(StackTrace(false))
 }
 
 func (logM *LogManager) ErrorFormat(messageFormat string, args ...any) {
