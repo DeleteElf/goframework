@@ -21,9 +21,9 @@
 [GRPC服务端示例](https://github.com/DeleteElf/goetcdserver "点击跳转")
 [GRPC客户端示例](https://github.com/DeleteElf/goetcdclient "点击跳转")
 
-通过shell命令行加载本模块
+###### 方法一、通过shell命令行加载本模块
 ```shell
-# github上public的项目，无需设置这个
+# github上public的项目，无需设置这个，
 # 如果要访问私有项目，则可以如下方式设置这个账户下的不走代理，不走代理需要使用梯子
 go env -w GOPRIVATE=github.com/deleteelf
 #拉取模块 
@@ -31,6 +31,15 @@ go get github.com/deleteelf/goframework
 #清理一下代码区域，防止刚拉的代码，被就代码搞混乱了
 go mod tidy
 ```
+###### 方法二、通过多模块配置加载此模块
+多模块配置无需使用go get github.com/deleteelf/goframework来获取最新代码
+```shell
+#初始化多模块工作区，模块是子目录，goland打开时使用父目录打开
+go work init ./goframework
+#增加第2个工作区，这边只是示例
+go work use ./example
+```
+
 
 1. loghelper 日志工具类，如果没有初始化级别，默认初始化warn级别日志
 2. stringhelper 字符串帮助类
