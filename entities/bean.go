@@ -28,20 +28,20 @@ func (model Model) TableName() string {
 
 type Bean[T IdData] struct {
 	Model
-	Id         T         `gorm:"column:f_id;primaryKey" json:"id"` //默认会使用Id作为主键
-	Active     bool      `gorm:"column:f_active;default:true" json:"active"`
-	CreateTime time.Time `gorm:"column:f_create_time;default:now()" json:"createTime"` //默认当前时间
-	ModifyTime time.Time `gorm:"column:f_modify_time;default:now()" json:"modifyTime"`
-	Remark     *string   `gorm:"column:f_remark" json:"remark"` //定义指针是为了支持空值
+	Id         T         `gorm:"column:f_id;primaryKey" json:"id" xml:"id,attr"` //默认会使用Id作为主键
+	Active     bool      `gorm:"column:f_active;default:true" json:"active" xml:"active,attr"`
+	CreateTime time.Time `gorm:"column:f_create_time;default:now()" json:"createTime" xml:"createTime,attr"` //默认当前时间
+	ModifyTime time.Time `gorm:"column:f_modify_time;default:now()" json:"modifyTime" xml:"modifyTime,attr"`
+	Remark     *string   `gorm:"column:f_remark" json:"remark" xml:"remark,cdata"` //定义指针是为了支持空值
 }
 
 type Entity struct {
-	Name string `gorm:"column:f_name;type:varchar(20);" json:"name"` //定义有名称的实体
+	Name string `gorm:"column:f_name;type:varchar(20);" json:"name" xml:"name,attr"` //定义有名称的实体
 }
 
 type Parent[T IdData] struct {
 	//ParentChildrenInterface
-	Parent T `gorm:"column:f_parent_id" json:"parent"` //定义有父子关系的结构
+	Parent T `gorm:"column:f_parent_id" json:"parentId"  xml:"parentId,attr"` //定义有父子关系的结构
 }
 
 // 系统用户
@@ -56,5 +56,5 @@ type UserInfo struct {
 
 // 系统用户的表名定义
 func (UserInfo) TableName() string {
-	return "t_user_info"
+	return "sys.t_user_info"
 }
