@@ -5,7 +5,7 @@
 访问外网如果有困难，可以使用翻墙梯子 XFLDT(主打比较便宜稳定)，并使用Clash进行访问
 [链接1](https://dash.xfltd.app/register?code=KXZSOGgs "点击跳转")
 [链接2](https://xfltd.net/#/register?code=KXZSOGgs)
-
+[国内可访问免代理](https://xfltd.top/#/register?code=KXZSOGgs)
 #### 支持领域：
 1. 电商平台
 2. 游戏引擎
