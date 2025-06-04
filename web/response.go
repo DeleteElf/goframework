@@ -3,6 +3,12 @@ package web
 type IdRequestPath struct {
 	Id string `path:"id"` //设置请求的格式要求
 }
+
+type TypeIdRequestPath struct {
+	IdRequestPath
+	Type string `path:"type"`
+}
+
 type Response[T any] struct {
 	Code string `json:"code"`
 	Msg  string `json:"msg,omitempty"`
