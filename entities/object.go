@@ -12,5 +12,5 @@ type IModel struct {
 type IConfig struct {
 	IObject
 	Name   string `json:",optional"`
-	Enable bool   `json:",default=false"`
+	Enable bool   `json:",default=true"`
 }
