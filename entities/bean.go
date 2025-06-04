@@ -14,20 +14,15 @@ type ModelInterface interface {
 	TableName() string //如果强制要求每个对象都必须书写映射，则取消此注释
 }
 
-//
-//type ParentChildrenInterface interface {
-//}
-
-type Model struct {
-}
-
-func (model Model) TableName() string {
+// type ParentChildrenInterface interface {
+// }
+func (model IModel) TableName() string {
 	t := reflect.TypeOf(model)
 	return "t_" + stringhelper.ConvertCamelToSnakeWithDefault(t.Name())
 }
 
 type Bean[T IdData] struct {
-	Model
+	IModel
 	Id         T         `gorm:"column:f_id;primaryKey" json:"id" xml:"id,attr"` //默认会使用Id作为主键
 	Active     bool      `gorm:"column:f_active;default:true" json:"active" xml:"active,attr"`
 	CreateTime time.Time `gorm:"column:f_create_time;default:now()" json:"createTime" xml:"createTime,attr"` //默认当前时间
@@ -44,7 +39,7 @@ type Parent[T IdData] struct {
 	Parent T `gorm:"column:f_parent_id" json:"parentId"  xml:"parentId,attr"` //定义有父子关系的结构
 }
 
-// 系统用户
+// UserInfo 系统用户
 type UserInfo struct {
 	Bean[int]         //匿名扩展
 	Entity            //扁平式扩展，而非继承
@@ -54,7 +49,7 @@ type UserInfo struct {
 	Telephone *string `gorm:"column:f_telephone;type:varchar(20);" json:"telephone"` //定义有名称的实体
 }
 
-// 系统用户的表名定义
+// TableName 系统用户的表名定义
 func (UserInfo) TableName() string {
 	return "sys.t_user_info"
 }

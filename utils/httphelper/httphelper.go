@@ -74,7 +74,7 @@ type RequestId struct {
 	Id string `form:"id" validate:“required”`
 }
 
-// 支持验证的http json request请求id
+// RequestJsonId 支持验证的http json request请求id
 type RequestJsonId struct {
 	Id string `json:"id" validate:“required”`
 }
