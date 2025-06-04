@@ -1,6 +1,6 @@
 package web
 
-type IdRequest struct {
+type IdRequestPath struct {
 	Id string `path:"id"` //设置请求的格式要求
 }
 type Response[T any] struct {
