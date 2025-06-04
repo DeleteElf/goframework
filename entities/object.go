@@ -11,4 +11,6 @@ type IModel struct {
 // IConfig 配置对象基类
 type IConfig struct {
 	IObject
+	Name   string `json:",optional"`
+	Enable bool   `json:",default=false"`
 }
