@@ -3,6 +3,7 @@ package httphelper
 import (
 	"bytes"
 	"context"
+	"github.com/deleteelf/goframework/web"
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/zeromicro/go-zero/rest/httpx"
@@ -69,28 +70,14 @@ type validateTemplate struct {
 	//表示字段值符合日期类型，如果datetime后边不接=?，那么默认为Y-m-d H:i:s，否则验证器会按照指定格式判断，比如 datetime=Y-m、datetime=Y/m/d H:i:s等，可以是Y m d H i s 的随意拼接
 }
 
-// 支持验证的http request请求id
-type RequestId struct {
-	Id string `form:"id" validate:“required”`
-}
-
-// RequestJsonId 支持验证的http json request请求id
-type RequestJsonId struct {
-	Id string `json:"id" validate:“required”`
-}
-
-type ResponseJsonBody struct {
-	Code    int         `json:"code"`             //错误码  没有错误返回0，其他根据业务要求定义
-	Message string      `json:"message"`          //设置应答的格式
-	Result  interface{} `json:"result,omitempty"` //interface{} 也可以用any代替
-}
-
 // 应答，应答结果为json结构
 func Response(w http.ResponseWriter, code int, message string, data interface{}) {
-	httpx.OkJson(w, ResponseJsonBody{
-		Code:    code,
-		Message: message,
-		Result:  data,
+	httpx.OkJson(w, web.ResponseJsonBody{
+		ResponseResult: web.ResponseResult[interface{}]{
+			Code: code,
+			Msg:  message,
+			Data: data,
+		},
 	})
 }
 
@@ -135,7 +122,7 @@ var jwtSecretKey = "framework default key"
 
 typ：Token type
 cty：Content type
-alg：Message authentication code algorithm
+alg：Msg authentication code algorithm
 Payload表示 Token 携带的数据及其它 Token 元信息，规范定义的标准字段如下：
 
 iss：Issuer，签发方

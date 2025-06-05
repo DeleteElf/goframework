@@ -1,50 +1,56 @@
 package web
 
-type IdRequestPath struct {
-	Id string `path:"id"` //设置请求的格式要求
-}
-
-type TypeIdRequestPath struct {
-	IdRequestPath
-	Type string `path:"type"`
-}
-
-type Response[T any] struct {
-	Code string `json:"code"`
-	Msg  string `json:"msg,omitempty"`
-	Data T      `json:"data,omitempty"`
+type ResponseResult[T any] struct {
+	Code int    `json:"code,omitempty"`
+	Msg  string `json:"msg,optional"`
+	Data T      `json:"data,optional"`
 }
 
 type ResponseString struct {
-	Response[string]
+	ResponseResult[string]
 }
 
 type ResponseBytes struct {
-	Response[[]byte]
+	ResponseResult[[]byte]
 }
 
 type ResponseBool struct {
-	Response[bool]
+	ResponseResult[bool]
 }
 
 type ResponseFloat struct {
-	Response[float64]
+	ResponseResult[float32]
+}
+
+type ResponseDouble struct {
+	ResponseResult[float64]
 }
 
 type ResponseInt struct {
-	Response[int]
+	ResponseResult[int]
 }
 
 type ResponseInt8 struct {
-	Response[int8]
+	ResponseResult[int8]
 }
 type ResponseInt16 struct {
-	Response[int16]
+	ResponseResult[int16]
 }
 type ResponseInt64 struct {
-	Response[int64]
+	ResponseResult[int64]
 }
 
 type ResponseModel struct {
-	Response[interface{}]
+	ResponseResult[interface{}]
+}
+
+type ResponseJsonArray struct {
+	ResponseResult[interface{}]
+}
+
+type ResponseJsonObject struct {
+	ResponseResult[interface{}]
+}
+type ResponseJsonBody struct {
+	ResponseResult[interface{}]
 }

@@ -8,7 +8,9 @@ import (
 type LogLevel int
 
 const (
-	Error LogLevel = iota
+	Fatal LogLevel = iota
+	Panic
+	Error
 	Warn
 	Info
 	Debug
@@ -24,6 +26,8 @@ func NewLogManager(lvl LogLevel) *LogManager {
 	return &LogManager{
 		Level: lvl,
 		levels: map[LogLevel]string{
+			Fatal: "[Fatal]",
+			Panic: "[Panic]",
 			Error: "[Error]",
 			Warn:  "[Warn]",
 			Info:  "[Info]",
@@ -63,7 +67,15 @@ func (logM *LogManager) Println(level LogLevel, message any) {
 	//logc.Debugv(log.ctx, message)
 	if logM.Level >= level {
 		log.SetPrefix(logM.levels[level])
-		log.Println(message)
+		switch level {
+		case Fatal:
+			log.Fatalln(message)
+		case Panic:
+			log.Panicln(message)
+		default:
+			log.Println(message)
+			break
+		}
 	}
 }
 func (logM *LogManager) PrintFormat(level LogLevel, messageFormat string, args ...any) {
@@ -120,4 +132,26 @@ func (logM *LogManager) Error(message any) {
 func (logM *LogManager) ErrorFormat(messageFormat string, args ...any) {
 	//logc.Errorf(log.ctx, messageFormat, args...)
 	logM.PrintFormat(Error, messageFormat, args...)
+}
+
+func (logM *LogManager) Fatal(message any) {
+	//logc.Errorv(log.ctx, message)
+	logM.Println(Fatal, message)
+	log.Println(StackTrace(false))
+}
+
+func (logM *LogManager) FatalFormat(messageFormat string, args ...any) {
+	//logc.Errorf(log.ctx, messageFormat, args...)
+	logM.PrintFormat(Fatal, messageFormat, args...)
+}
+
+func (logM *LogManager) Panic(message any) {
+	//logc.Errorv(log.ctx, message)
+	logM.Println(Panic, message)
+	log.Println(StackTrace(false))
+}
+
+func (logM *LogManager) PanicFormat(messageFormat string, args ...any) {
+	//logc.Errorf(log.ctx, messageFormat, args...)
+	logM.PrintFormat(Panic, messageFormat, args...)
 }
