@@ -2,8 +2,8 @@ package web
 
 type ResponseResult[T any] struct {
 	Code int    `json:"code,omitempty"`
-	Msg  string `json:"msg,optional"`
-	Data T      `json:"data,optional"`
+	Msg  string `json:"msg,omitempty"`
+	Data T      `json:"data,omitempty"`
 }
 
 type ResponseString struct {
