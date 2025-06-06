@@ -41,7 +41,13 @@ func GetObject(str []byte, v any) error {
 	return json.Unmarshal(str, v)
 }
 
-// ToJsonString 对象转成json
-func ToJsonString(v any) ([]byte, error) {
+// ToJsonByte 对象转成json数据
+func ToJsonByte(v any) ([]byte, error) {
 	return json.Marshal(v)
+}
+
+// ToJsonString 对象转成json字符串
+func ToJsonString(v any) (string, error) {
+	result, err := ToJsonByte(v)
+	return string(result), err
 }
