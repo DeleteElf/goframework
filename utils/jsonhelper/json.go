@@ -11,7 +11,7 @@ type JsonArray []interface{}
 //  func GetJsonObjectString(jsonObject JsonObject) ([]byte, error) {
 //	return json.Marshal(jsonObject)
 //}
-//
+
 //func GetJsonArrayString(jsonArray JsonArray) ([]byte, error) {
 //	return json.Marshal(jsonArray)
 //}
