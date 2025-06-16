@@ -2,7 +2,7 @@ package entities
 
 // IWorker 工作者接口
 type IWorker interface {
-	Init(config IConfig) bool
+	Init(config *IConfig) bool
 	Start() bool
 	Stop() bool
 }
