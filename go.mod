@@ -3,14 +3,14 @@ module github.com/deleteelf/goframework
 go 1.23.2
 
 require (
-	github.com/gin-gonic/gin v1.10.0
-	github.com/go-playground/validator/v10 v10.22.1
-	github.com/golang-jwt/jwt/v4 v4.5.1
+	github.com/gin-gonic/gin v1.10.1
+	github.com/go-playground/validator/v10 v10.26.0
+	github.com/golang-jwt/jwt/v4 v4.5.2
 	github.com/gorilla/sessions v1.4.0
-	github.com/zeromicro/go-zero v1.7.3
-	golang.org/x/text v0.19.0
-	gorm.io/driver/postgres v1.5.9
-	gorm.io/gorm v1.25.12
+	github.com/zeromicro/go-zero v1.8.4
+	golang.org/x/text v0.26.0
+	gorm.io/driver/postgres v1.6.0
+	gorm.io/gorm v1.30.0
 )
 
 require (
