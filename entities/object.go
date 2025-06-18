@@ -1,16 +1,20 @@
 package entities
 
 // IObject 对象基类
-type IObject struct{}
+type IObject interface{}
 
 // IModel 数据模型基类
 type IModel struct {
 	IObject
 }
 
-// IConfig 配置对象基类
-type IConfig struct {
+type IConfig interface {
 	IObject
-	Name   string `json:",omitempty"`
-	Enable bool   `json:",default=true"`
+}
+
+// BaseConfig 配置对象基类
+type BaseConfig struct {
+	IConfig `json:"-"`
+	Name    string `json:",omitempty"`
+	Enable  bool   `json:",default=true"`
 }

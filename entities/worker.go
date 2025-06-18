@@ -2,13 +2,29 @@ package entities
 
 // IWorker 工作者接口
 type IWorker interface {
-	Init(config *IConfig) bool
+	Init(config IConfig) bool
+	GetConfig() IConfig
+	GetIsRunning() bool
 	Start() bool
 	Stop() bool
+	run()
 }
 
-// IRunWorker 需要运行的工作者接口
-type IRunWorker interface {
+type BaseWorker struct {
 	IWorker
-	run()
+	isRunning bool
+}
+
+func (worker *BaseWorker) GetIsRunning() bool {
+	return worker.isRunning
+}
+
+func (worker *BaseWorker) Start() bool {
+	worker.isRunning = true
+	return true
+}
+
+func (worker *BaseWorker) Stop() bool {
+	worker.isRunning = false
+	return true
 }
