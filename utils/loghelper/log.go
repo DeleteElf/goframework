@@ -57,6 +57,7 @@ func NewLogManager(lvl LogLevel) *LogManager {
 
 func NewLogger(scope string) logging.LeveledLogger {
 	lvl := GetLogLevel(scope)
+	log.SetFlags(log.Ldate | log.Lmicroseconds)
 	return &LogManager{
 		Level: lvl,
 		levels: map[LogLevel]string{
@@ -112,13 +113,9 @@ func (logM *LogManager) Println(level LogLevel, message any) {
 	}
 }
 func (logM *LogManager) Printlnf(level LogLevel, messageFormat string, args ...any) {
-	//logc.Debugf(log.ctx, messageFormat, args...)
 	if logM.Level >= level {
 		log.SetPrefix(logM.levels[level])
 		log.Printf(messageFormat, args...)
-		//log.Println()
-		//message := fmt.Sprintf(messageFormat, args...)
-		//log.Println(message)
 	}
 }
 
