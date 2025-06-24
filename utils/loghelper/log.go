@@ -1,6 +1,7 @@
 package loghelper
 
 import (
+	"github.com/pion/logging"
 	"log"
 	"runtime"
 )
@@ -14,15 +15,48 @@ const (
 	Warn
 	Info
 	Debug
+	Trace
 )
+
+func (level LogLevel) String() string {
+	return [...]string{"Fatal", "Panic", "Error", "Warn", "Info", "Debug"}[level]
+}
+
+func GetLogLevel(scope string) LogLevel {
+	levelMap := map[string]LogLevel{
+		"Fatal": Fatal,
+		"Panic": Panic,
+		"Error": Error,
+		"Warn":  Warn,
+		"Info":  Info,
+		"Debug": Debug,
+	}
+	return levelMap[scope]
+}
 
 type LogManager struct {
 	//ctx context.Context
+	logging.LoggerFactory
 	Level  LogLevel
 	levels map[LogLevel]string
 }
 
 func NewLogManager(lvl LogLevel) *LogManager {
+	return &LogManager{
+		Level: lvl,
+		levels: map[LogLevel]string{
+			Fatal: "[Fatal]",
+			Panic: "[Panic]",
+			Error: "[Error]",
+			Warn:  "[Warn]",
+			Info:  "[Info]",
+			Debug: "[Debug]",
+		},
+	}
+}
+
+func NewLogger(scope string) logging.LeveledLogger {
+	lvl := GetLogLevel(scope)
 	return &LogManager{
 		Level: lvl,
 		levels: map[LogLevel]string{
@@ -64,7 +98,6 @@ func StackTrace(all bool) string {
 }
 
 func (logM *LogManager) Println(level LogLevel, message any) {
-	//logc.Debugv(log.ctx, message)
 	if logM.Level >= level {
 		log.SetPrefix(logM.levels[level])
 		switch level {
@@ -78,80 +111,69 @@ func (logM *LogManager) Println(level LogLevel, message any) {
 		}
 	}
 }
-func (logM *LogManager) PrintFormat(level LogLevel, messageFormat string, args ...any) {
+func (logM *LogManager) Printlnf(level LogLevel, messageFormat string, args ...any) {
 	//logc.Debugf(log.ctx, messageFormat, args...)
 	if logM.Level >= level {
 		log.SetPrefix(logM.levels[level])
 		log.Printf(messageFormat, args...)
+		//log.Println()
 		//message := fmt.Sprintf(messageFormat, args...)
 		//log.Println(message)
 	}
 }
 
-func (logM *LogManager) Debug(message any) {
-	//logc.Debugv(log.ctx, message)
-	//if logM.Level >= Debug {
-	//	log.Println(message)
-	//}
-	logM.Println(Debug, message)
+func (logM *LogManager) Trace(message string) {
+	logM.Println(Trace, message)
 }
-func (logM *LogManager) DebugFormat(messageFormat string, args ...any) {
-	//logc.Debugf(log.ctx, messageFormat, args...)
-	//if logM.Level >= Debug {
-	//	log.Printf(messageFormat, args...)
-	//	log.Println()
-	//}
-	logM.PrintFormat(Debug, messageFormat, args...)
+func (logM *LogManager) Tracef(messageFormat string, args ...any) {
+	logM.Printlnf(Trace, messageFormat, args...)
 }
 
-func (logM *LogManager) Info(message any) {
-	//logc.Infov(log.ctx, message)
+func (logM *LogManager) Debug(message string) {
+	logM.Println(Debug, message)
+}
+func (logM *LogManager) Debugf(messageFormat string, args ...any) {
+	logM.Printlnf(Debug, messageFormat, args...)
+}
+
+func (logM *LogManager) Info(message string) {
 	logM.Println(Info, message)
 }
 
-func (logM *LogManager) InfoFormat(messageFormat string, args ...any) {
-	//logc.Infof(log.ctx, messageFormat, args...)
-	logM.PrintFormat(Info, messageFormat, args...)
+func (logM *LogManager) Infof(messageFormat string, args ...any) {
+	logM.Printlnf(Info, messageFormat, args...)
 }
 
-func (logM *LogManager) Warn(message any) {
-	//logc.Infov(log.ctx, message)
+func (logM *LogManager) Warn(message string) {
 	logM.Println(Warn, message)
 }
 
-func (logM *LogManager) WarnFormat(messageFormat string, args ...any) {
-	//logc.Infof(log.ctx, messageFormat, args...)
-	logM.PrintFormat(Warn, messageFormat, args...)
+func (logM *LogManager) Warnf(messageFormat string, args ...any) {
+	logM.Printlnf(Warn, messageFormat, args...)
 }
-func (logM *LogManager) Error(message any) {
-	//logc.Errorv(log.ctx, message)
+func (logM *LogManager) Error(message string) {
 	logM.Println(Error, message)
 	log.Println(StackTrace(false))
 }
 
-func (logM *LogManager) ErrorFormat(messageFormat string, args ...any) {
-	//logc.Errorf(log.ctx, messageFormat, args...)
-	logM.PrintFormat(Error, messageFormat, args...)
+func (logM *LogManager) Errorf(messageFormat string, args ...any) {
+	logM.Printlnf(Error, messageFormat, args...)
 }
 
-func (logM *LogManager) Fatal(message any) {
-	//logc.Errorv(log.ctx, message)
+func (logM *LogManager) Fatal(message string) {
 	logM.Println(Fatal, message)
 	log.Println(StackTrace(false))
 }
 
-func (logM *LogManager) FatalFormat(messageFormat string, args ...any) {
-	//logc.Errorf(log.ctx, messageFormat, args...)
-	logM.PrintFormat(Fatal, messageFormat, args...)
+func (logM *LogManager) Fatalf(messageFormat string, args ...any) {
+	logM.Printlnf(Fatal, messageFormat, args...)
 }
 
-func (logM *LogManager) Panic(message any) {
-	//logc.Errorv(log.ctx, message)
+func (logM *LogManager) Panic(message string) {
 	logM.Println(Panic, message)
 	log.Println(StackTrace(false))
 }
 
-func (logM *LogManager) PanicFormat(messageFormat string, args ...any) {
-	//logc.Errorf(log.ctx, messageFormat, args...)
-	logM.PrintFormat(Panic, messageFormat, args...)
+func (logM *LogManager) Panicf(messageFormat string, args ...any) {
+	logM.Printlnf(Panic, messageFormat, args...)
 }

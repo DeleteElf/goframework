@@ -36,22 +36,22 @@ func (pg *PostgresDB) Open() bool {
 		NamingStrategy:         schema.NamingStrategy{},
 	})
 	if err != nil {
-		loghelper.GetLogManager().ErrorFormat("数据库连接失败！！%s", pg.Config.ConnectionString)
+		loghelper.GetLogManager().Errorf("数据库连接失败！！%s", pg.Config.ConnectionString)
 		return false
 	}
-	loghelper.GetLogManager().InfoFormat("数据库连接成功！！%s", pg.Config.ConnectionString)
+	loghelper.GetLogManager().Infof("数据库连接成功！！%s", pg.Config.ConnectionString)
 	return true
 }
 
 func (pg *PostgresDB) Close() bool {
 	sqlDb, err := pg.db.DB()
 	if err != nil {
-		loghelper.GetLogManager().Error(err)
+		loghelper.GetLogManager().Error(err.Error())
 		return false
 	}
 	err = sqlDb.Close()
 	if err != nil {
-		loghelper.GetLogManager().Error(err)
+		loghelper.GetLogManager().Error(err.Error())
 		return false
 	}
 	return true

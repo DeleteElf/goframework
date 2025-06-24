@@ -20,7 +20,7 @@ func TestSelect(t *testing.T) {
 	if err != nil {
 		loghelper.GetLogManager().Info("查询失败")
 	}
-	loghelper.GetLogManager().InfoFormat("查询结果%s", string(jsonData))
+	loghelper.GetLogManager().Infof("查询结果%s", string(jsonData))
 }
 
 func TestTransaction(t *testing.T) {
@@ -33,7 +33,7 @@ func TestTransaction(t *testing.T) {
 	if err != nil {
 		loghelper.GetLogManager().Info("查询失败")
 	}
-	loghelper.GetLogManager().InfoFormat("查询结果 %s ", string(jsonData))
+	loghelper.GetLogManager().Infof("查询结果 %s ", string(jsonData))
 	//loghelper.GetLogManager().Info(`查询结果 [{"f_account":"admin","f_active":true,"f_create_time":"2024-11-12T17:45:05.188292+08:00","f_email":null,"f_id":1,"f_modify_time":"2024-11-26T14:34:53.124399+08:00","f_name":"系统管理员","f_password":"0192023a7bbd73250516f069df18b500","f_remark":"密码是 admin123","f_telephone":null}] `)
 
 	dbCon.Open()
@@ -55,7 +55,7 @@ func TestTransaction(t *testing.T) {
 	if err != nil {
 		loghelper.GetLogManager().Info("查询失败")
 	}
-	loghelper.GetLogManager().InfoFormat("修改数据后，查询结果%s", string(jsonData))
+	loghelper.GetLogManager().Infof("修改数据后，查询结果%s", string(jsonData))
 	dbCon.RollbackTransaction()
 	dbCon.Close()
 	dataTable = dbCon.QueryData(`SELECT * FROM t_user_info where f_id = ?`, 1)
@@ -63,7 +63,7 @@ func TestTransaction(t *testing.T) {
 	if err != nil {
 		loghelper.GetLogManager().Info("查询失败")
 	}
-	loghelper.GetLogManager().InfoFormat("回滚事务后，查询结果%s", string(jsonData))
+	loghelper.GetLogManager().Infof("回滚事务后，查询结果%s", string(jsonData))
 
 }
 
@@ -77,7 +77,7 @@ func TestTransactionCallback(t *testing.T) {
 	if err != nil {
 		loghelper.GetLogManager().Info("查询失败")
 	}
-	loghelper.GetLogManager().InfoFormat("查询结果%s", string(jsonData))
+	loghelper.GetLogManager().Infof("查询结果%s", string(jsonData))
 
 	dbCon.TransactionCallback(func(tx *gorm.DB) error {
 		dataTable.TableName = "t_user_info"
@@ -96,8 +96,8 @@ func TestTransactionCallback(t *testing.T) {
 			loghelper.GetLogManager().Info("查询失败")
 			return err
 		}
-		//log.Printf("修改数据后，查询结果%s", string(jsonData))
-		loghelper.GetLogManager().InfoFormat("修改数据后，查询结果%s", string(jsonData))
+		//log.Printlnf("修改数据后，查询结果%s", string(jsonData))
+		loghelper.GetLogManager().Infof("修改数据后，查询结果%s", string(jsonData))
 		return errors.New("自定义错误")
 	})
 
@@ -107,8 +107,8 @@ func TestTransactionCallback(t *testing.T) {
 		loghelper.GetLogManager().Info("查询失败")
 	}
 	//loghelper.GetLogManager().Info("test")
-	//log.Printf("回滚事务后，查询结果%s", string(jsonData))
-	loghelper.GetLogManager().InfoFormat("回滚事务后，查询结果%s", string(jsonData))
+	//log.Printlnf("回滚事务后，查询结果%s", string(jsonData))
+	loghelper.GetLogManager().Infof("回滚事务后，查询结果%s", string(jsonData))
 	//loghelper.GetLogManager().Info("test")
 	time.Sleep(1)
 }
