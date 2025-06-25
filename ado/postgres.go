@@ -36,22 +36,22 @@ func (pg *PostgresDB) Open() bool {
 		NamingStrategy:         schema.NamingStrategy{},
 	})
 	if err != nil {
-		loghelper.GetLogManager().Errorf("数据库连接失败！！%s", pg.Config.ConnectionString)
+		loghelper.GetDefaultLogger().Errorf("数据库连接失败！！%s", pg.Config.ConnectionString)
 		return false
 	}
-	loghelper.GetLogManager().Infof("数据库连接成功！！%s", pg.Config.ConnectionString)
+	loghelper.GetDefaultLogger().Infof("数据库连接成功！！%s", pg.Config.ConnectionString)
 	return true
 }
 
 func (pg *PostgresDB) Close() bool {
 	sqlDb, err := pg.db.DB()
 	if err != nil {
-		loghelper.GetLogManager().Error(err.Error())
+		loghelper.GetDefaultLogger().Error(err.Error())
 		return false
 	}
 	err = sqlDb.Close()
 	if err != nil {
-		loghelper.GetLogManager().Error(err.Error())
+		loghelper.GetDefaultLogger().Error(err.Error())
 		return false
 	}
 	return true
@@ -153,7 +153,7 @@ func (pg *PostgresDB) SelectById(model entities.ModelInterface, id any) {
 		err := session.First(model, id).Error
 		switch err {
 		case gorm.ErrRecordNotFound:
-			loghelper.GetLogManager().Error("根据Id查询的数据不存在！！！")
+			loghelper.GetDefaultLogger().Error("根据Id查询的数据不存在！！！")
 			break
 		default:
 			break
@@ -172,7 +172,7 @@ func (pg *PostgresDB) SelectByCondition(dest interface{}, query string, conds ..
 		err := session.Where(query, conds...).Find(dest).Error
 		switch err {
 		case gorm.ErrRecordNotFound:
-			loghelper.GetLogManager().Error("查询的数据不存在！！！")
+			loghelper.GetDefaultLogger().Error("查询的数据不存在！！！")
 			break
 		default:
 			break
@@ -193,11 +193,11 @@ func (pg *PostgresDB) QueryData(sql string, conds ...any) *DataTable {
 			rows, err := pg.db.Raw(sql, conds...).Rows()
 			defer rows.Close()
 			if err != nil {
-				loghelper.GetLogManager().Error("获取行数据出错！！")
+				loghelper.GetDefaultLogger().Error("获取行数据出错！！")
 			}
 			columns, err1 := rows.Columns()
 			if err1 != nil {
-				loghelper.GetLogManager().Error("获取列数据出错！！")
+				loghelper.GetDefaultLogger().Error("获取列数据出错！！")
 			}
 			ctx.Statement.ColumnMapping = map[string]string{}
 			for _, column := range columns {
@@ -207,10 +207,10 @@ func (pg *PostgresDB) QueryData(sql string, conds ...any) *DataTable {
 		err := ctx.Scan(&result.Rows).Error
 		switch err {
 		case gorm.ErrRecordNotFound:
-			loghelper.GetLogManager().Error("查询的数据不存在！！！")
+			loghelper.GetDefaultLogger().Error("查询的数据不存在！！！")
 			break
 		case gorm.ErrDryRunModeUnsupported:
-			loghelper.GetLogManager().Error("ErrDryRunModeUnsupported！！！")
+			loghelper.GetDefaultLogger().Error("ErrDryRunModeUnsupported！！！")
 			break
 		default:
 			break

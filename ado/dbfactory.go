@@ -178,6 +178,6 @@ func CreateDbByConfig(config DbConfig) DbInterface {
 	default:
 		break
 	}
-	loghelper.GetLogManager().Error("暂不支持的数据库类型！！")
+	loghelper.GetDefaultLogger().Error("暂不支持的数据库类型！！")
 	return nil
 }
