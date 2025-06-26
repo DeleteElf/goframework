@@ -109,6 +109,10 @@ func StackTrace(all bool) string {
 	return string(buf)
 }
 
+func (logger *LeveledLoggerImpl) SetLevel(level LogLevel) {
+	logger.Level = level
+}
+
 func (logger *LeveledLoggerImpl) Println(level LogLevel, message any) {
 	if logger.Level >= level {
 		log.SetPrefix(logManager.levels[level] + "[" + logger.scope + "]")
