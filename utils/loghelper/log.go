@@ -147,7 +147,7 @@ func (logger *LeveledLoggerImpl) SetLevel(level LogLevel) {
 
 func (logger *LeveledLoggerImpl) Println(level LogLevel, message string) {
 	if logger.Level >= level {
-		logger.SetPrefix(GetColorLevel(level.String()) + logManager.levels[level] + "[" + logger.scope + "][" + time.Now().Format("2006-01-02 15:04:05") + "]")
+		logger.SetPrefix(GetColorLevel(level.String()) + logManager.levels[level] + "[" + logger.scope + "][" + time.Now().Format("2006-01-02 15:04:05.000") + "]")
 		msg := message + "\x1b[0m"
 		switch level {
 		case Fatal:
@@ -165,7 +165,7 @@ func (logger *LeveledLoggerImpl) Println(level LogLevel, message string) {
 }
 func (logger *LeveledLoggerImpl) Printf(level LogLevel, messageFormat string, args ...any) {
 	if logger.Level >= level {
-		logger.SetPrefix(GetColorLevel(level.String()) + logManager.levels[level] + "[" + logger.scope + "][" + time.Now().Format("2006-01-02 15:04:05") + "]")
+		logger.SetPrefix(GetColorLevel(level.String()) + logManager.levels[level] + "[" + logger.scope + "][" + time.Now().Format("2006-01-02 15:04:05.000") + "]")
 		format := messageFormat + "\x1b[0m"
 		switch level {
 		case Fatal:
