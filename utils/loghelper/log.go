@@ -35,21 +35,23 @@ func GetLogLevel(level string) LogLevel {
 }
 
 type LogManager struct {
-	//ctx context.Context
-	FactoryMap map[string]*LoggerFactoryImpl
+	logging.LoggerFactory
+	FactoryMap map[string]*LeveledLoggerImpl
 	Level      LogLevel
 	levels     map[LogLevel]string
 }
 
-type LoggerFactoryImpl struct {
-	logging.LoggerFactory
+type LeveledLoggerImpl struct {
+	logging.LeveledLogger
 	Level LogLevel
+	scope string
+	//logr.Logger
 }
 
 func NewLogManager(lvl LogLevel) *LogManager {
 	return &LogManager{
 		Level:      lvl,
-		FactoryMap: map[string]*LoggerFactoryImpl{"default": &LoggerFactoryImpl{}},
+		FactoryMap: map[string]*LeveledLoggerImpl{"default": &LeveledLoggerImpl{scope: "default", Level: lvl}},
 		levels: map[LogLevel]string{
 			Fatal: "[Fatal]",
 			Panic: "[Panic]",
@@ -80,14 +82,18 @@ func (logM *LogManager) Init(lvl LogLevel) {
 
 func (logM *LogManager) NewLogger(scope string) logging.LeveledLogger {
 	if logM.FactoryMap[scope] == nil {
-		logM.FactoryMap[scope] = &LoggerFactoryImpl{}
+		logM.FactoryMap[scope] = &LeveledLoggerImpl{scope: scope, Level: logM.Level}
 	}
 	return logM.FactoryMap[scope]
 }
 
-func GetDefaultLogger() *LoggerFactoryImpl {
+func GetDefaultLogger() *LeveledLoggerImpl {
 	GetLogManager()
 	return logManager.FactoryMap["default"]
+}
+
+func GetLogger(scope string) *LeveledLoggerImpl {
+	return GetLogManager().NewLogger(scope).(*LeveledLoggerImpl)
 }
 
 func StackTrace(all bool) string {
@@ -103,9 +109,9 @@ func StackTrace(all bool) string {
 	return string(buf)
 }
 
-func (logger *LoggerFactoryImpl) Println(level LogLevel, message any) {
+func (logger *LeveledLoggerImpl) Println(level LogLevel, message any) {
 	if logger.Level >= level {
-		log.SetPrefix(logManager.levels[level])
+		log.SetPrefix(logManager.levels[level] + "[" + logger.scope + "]")
 		switch level {
 		case Fatal:
 			log.Fatalln(message)
@@ -117,65 +123,65 @@ func (logger *LoggerFactoryImpl) Println(level LogLevel, message any) {
 		}
 	}
 }
-func (logger *LoggerFactoryImpl) Printlnf(level LogLevel, messageFormat string, args ...any) {
+func (logger *LeveledLoggerImpl) Printlnf(level LogLevel, messageFormat string, args ...any) {
 	if logger.Level >= level {
-		log.SetPrefix(logManager.levels[level])
+		log.SetPrefix(logManager.levels[level] + "[" + logger.scope + "]")
 		log.Printf(messageFormat, args...)
 	}
 }
 
-func (logger *LoggerFactoryImpl) Trace(message string) {
+func (logger *LeveledLoggerImpl) Trace(message string) {
 	logger.Println(Trace, message)
 }
-func (logger *LoggerFactoryImpl) Tracef(messageFormat string, args ...any) {
+func (logger *LeveledLoggerImpl) Tracef(messageFormat string, args ...any) {
 	logger.Printlnf(Trace, messageFormat, args...)
 }
 
-func (logger *LoggerFactoryImpl) Debug(message string) {
+func (logger *LeveledLoggerImpl) Debug(message string) {
 	logger.Println(Debug, message)
 }
-func (logger *LoggerFactoryImpl) Debugf(messageFormat string, args ...any) {
+func (logger *LeveledLoggerImpl) Debugf(messageFormat string, args ...any) {
 	logger.Printlnf(Debug, messageFormat, args...)
 }
 
-func (logger *LoggerFactoryImpl) Info(message string) {
+func (logger *LeveledLoggerImpl) Info(message string) {
 	logger.Println(Info, message)
 }
 
-func (logger *LoggerFactoryImpl) Infof(messageFormat string, args ...any) {
+func (logger *LeveledLoggerImpl) Infof(messageFormat string, args ...any) {
 	logger.Printlnf(Info, messageFormat, args...)
 }
 
-func (logger *LoggerFactoryImpl) Warn(message string) {
+func (logger *LeveledLoggerImpl) Warn(message string) {
 	logger.Println(Warn, message)
 }
 
-func (logger *LoggerFactoryImpl) Warnf(messageFormat string, args ...any) {
+func (logger *LeveledLoggerImpl) Warnf(messageFormat string, args ...any) {
 	logger.Printlnf(Warn, messageFormat, args...)
 }
-func (logger *LoggerFactoryImpl) Error(message string) {
+func (logger *LeveledLoggerImpl) Error(message string) {
 	logger.Println(Error, message)
 	log.Println(StackTrace(false))
 }
 
-func (logger *LoggerFactoryImpl) Errorf(messageFormat string, args ...any) {
+func (logger *LeveledLoggerImpl) Errorf(messageFormat string, args ...any) {
 	logger.Printlnf(Error, messageFormat, args...)
 }
 
-func (logger *LoggerFactoryImpl) Fatal(message string) {
+func (logger *LeveledLoggerImpl) Fatal(message string) {
 	logger.Println(Fatal, message)
 	log.Println(StackTrace(false))
 }
 
-func (logger *LoggerFactoryImpl) Fatalf(messageFormat string, args ...any) {
+func (logger *LeveledLoggerImpl) Fatalf(messageFormat string, args ...any) {
 	logger.Printlnf(Fatal, messageFormat, args...)
 }
 
-func (logger *LoggerFactoryImpl) Panic(message string) {
+func (logger *LeveledLoggerImpl) Panic(message string) {
 	logger.Println(Panic, message)
 	log.Println(StackTrace(false))
 }
 
-func (logger *LoggerFactoryImpl) Panicf(messageFormat string, args ...any) {
+func (logger *LeveledLoggerImpl) Panicf(messageFormat string, args ...any) {
 	logger.Printlnf(Panic, messageFormat, args...)
 }
