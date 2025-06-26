@@ -3,13 +3,15 @@ package loghelper
 import (
 	"github.com/pion/logging"
 	"log"
+	"os"
 	"runtime"
+	"time"
 )
 
 type LogLevel int
 
 const (
-	Fatal LogLevel = iota
+	Fatal LogLevel = iota + 1
 	Panic
 	Error
 	Warn
@@ -19,7 +21,7 @@ const (
 )
 
 func (level LogLevel) String() string {
-	return [...]string{"Fatal", "Panic", "Error", "Warn", "Info", "Debug"}[level]
+	return [...]string{"Fatal", "Panic", "Error", "Warn", "Info", "Debug", "Trace"}[level-1]
 }
 
 func GetLogLevel(level string) LogLevel {
@@ -30,7 +32,29 @@ func GetLogLevel(level string) LogLevel {
 		"Warn":  Warn,
 		"Info":  Info,
 		"Debug": Debug,
+		"Trace": Trace,
 	}
+	return levelMap[level]
+}
+
+func GetColorLevel(level string) string {
+	levelMap := map[string]string{
+		"Fatal": "\x1b[97;31m", // 红色
+		"Panic": "\x1b[97;31m", // 红色
+		"Error": "\x1b[97;31m", // 红色
+		"Warn":  "\x1b[97;33m", // 黄色
+		"Info":  "\x1b[97;0m",  // 白色
+		"Debug": "\x1b[97;32m", //绿色
+	}
+	//背景色。。。。
+	//levelMap := map[string]string{
+	//	"Fatal": "\x1b[97;41m", // 红色
+	//	"Panic": "\x1b[97;41m", // 红色
+	//	"Error": "\x1b[97;41m", // 红色
+	//	"Warn":  "\x1b[97;43m", // 黄色
+	//	"Info":  "\x1b[97;0m",  // 白色
+	//	"Debug": "\x1b[97;42m", //绿色
+	//}
 	return levelMap[level]
 }
 
@@ -45,13 +69,22 @@ type LeveledLoggerImpl struct {
 	logging.LeveledLogger
 	Level LogLevel
 	scope string
-	//logr.Logger
+	log.Logger
+}
+
+func NewLeveledLogger(scope string, level LogLevel) *LeveledLoggerImpl {
+	logger := &LeveledLoggerImpl{scope: scope, Level: level}
+	logger.SetFlags(0)
+	//log.SetFlags(log.Ldate | log.Lmicroseconds)
+	logger.SetOutput(os.Stdout)
+	//logger.SetPrefix(logManager.levels[level] + "[" + logger.scope + "][" + time.Now().Format("2006-01-02 15:04:05") + "]")
+	return logger
 }
 
 func NewLogManager(lvl LogLevel) *LogManager {
 	return &LogManager{
 		Level:      lvl,
-		FactoryMap: map[string]*LeveledLoggerImpl{"default": &LeveledLoggerImpl{scope: "default", Level: lvl}},
+		FactoryMap: map[string]*LeveledLoggerImpl{"default": NewLeveledLogger("default", lvl)},
 		levels: map[LogLevel]string{
 			Fatal: "[Fatal]",
 			Panic: "[Panic]",
@@ -74,7 +107,6 @@ func GetLogManager() *LogManager {
 
 func (logM *LogManager) Init(lvl LogLevel) {
 	logM.Level = lvl
-	log.SetFlags(log.Ldate | log.Lmicroseconds)
 	for _, factory := range logM.FactoryMap {
 		factory.Level = lvl
 	}
@@ -82,7 +114,7 @@ func (logM *LogManager) Init(lvl LogLevel) {
 
 func (logM *LogManager) NewLogger(scope string) logging.LeveledLogger {
 	if logM.FactoryMap[scope] == nil {
-		logM.FactoryMap[scope] = &LeveledLoggerImpl{scope: scope, Level: logM.Level}
+		logM.FactoryMap[scope] = NewLeveledLogger(scope, logM.Level)
 	}
 	return logM.FactoryMap[scope]
 }
@@ -113,24 +145,40 @@ func (logger *LeveledLoggerImpl) SetLevel(level LogLevel) {
 	logger.Level = level
 }
 
-func (logger *LeveledLoggerImpl) Println(level LogLevel, message any) {
+func (logger *LeveledLoggerImpl) Println(level LogLevel, message string) {
 	if logger.Level >= level {
-		log.SetPrefix(logManager.levels[level] + "[" + logger.scope + "]")
+		logger.SetPrefix(GetColorLevel(level.String()) + logManager.levels[level] + "[" + logger.scope + "][" + time.Now().Format("2006-01-02 15:04:05") + "]")
+		msg := message + "\x1b[0m"
 		switch level {
 		case Fatal:
-			log.Fatalln(message)
+			//logger.SetOutput(os.Stderr)
+			logger.Fatalln(msg)
 		case Panic:
-			log.Panicln(message)
+			//logger.SetOutput(os.Stderr)
+			logger.Panicln(msg)
 		default:
-			log.Println(message)
+			//logger.SetOutput(os.Stdout)
+			logger.Logger.Println(msg)
 			break
 		}
 	}
 }
-func (logger *LeveledLoggerImpl) Printlnf(level LogLevel, messageFormat string, args ...any) {
+func (logger *LeveledLoggerImpl) Printf(level LogLevel, messageFormat string, args ...any) {
 	if logger.Level >= level {
-		log.SetPrefix(logManager.levels[level] + "[" + logger.scope + "]")
-		log.Printf(messageFormat, args...)
+		logger.SetPrefix(GetColorLevel(level.String()) + logManager.levels[level] + "[" + logger.scope + "][" + time.Now().Format("2006-01-02 15:04:05") + "]")
+		format := messageFormat + "\x1b[0m"
+		switch level {
+		case Fatal:
+			//logger.SetOutput(os.Stderr)
+			logger.Logger.Fatalf(format, args...)
+		case Panic:
+			//logger.SetOutput(os.Stderr)
+			logger.Logger.Panicf(format, args...)
+		default:
+			//logger.SetOutput(os.Stdout)
+			logger.Logger.Printf(format, args...)
+			break
+		}
 	}
 }
 
@@ -138,14 +186,14 @@ func (logger *LeveledLoggerImpl) Trace(message string) {
 	logger.Println(Trace, message)
 }
 func (logger *LeveledLoggerImpl) Tracef(messageFormat string, args ...any) {
-	logger.Printlnf(Trace, messageFormat, args...)
+	logger.Printf(Trace, messageFormat, args...)
 }
 
 func (logger *LeveledLoggerImpl) Debug(message string) {
 	logger.Println(Debug, message)
 }
 func (logger *LeveledLoggerImpl) Debugf(messageFormat string, args ...any) {
-	logger.Printlnf(Debug, messageFormat, args...)
+	logger.Printf(Debug, messageFormat, args...)
 }
 
 func (logger *LeveledLoggerImpl) Info(message string) {
@@ -153,7 +201,7 @@ func (logger *LeveledLoggerImpl) Info(message string) {
 }
 
 func (logger *LeveledLoggerImpl) Infof(messageFormat string, args ...any) {
-	logger.Printlnf(Info, messageFormat, args...)
+	logger.Printf(Info, messageFormat, args...)
 }
 
 func (logger *LeveledLoggerImpl) Warn(message string) {
@@ -161,7 +209,7 @@ func (logger *LeveledLoggerImpl) Warn(message string) {
 }
 
 func (logger *LeveledLoggerImpl) Warnf(messageFormat string, args ...any) {
-	logger.Printlnf(Warn, messageFormat, args...)
+	logger.Printf(Warn, messageFormat, args...)
 }
 func (logger *LeveledLoggerImpl) Error(message string) {
 	logger.Println(Error, message)
@@ -169,7 +217,7 @@ func (logger *LeveledLoggerImpl) Error(message string) {
 }
 
 func (logger *LeveledLoggerImpl) Errorf(messageFormat string, args ...any) {
-	logger.Printlnf(Error, messageFormat, args...)
+	logger.Printf(Error, messageFormat, args...)
 }
 
 func (logger *LeveledLoggerImpl) Fatal(message string) {
@@ -178,7 +226,7 @@ func (logger *LeveledLoggerImpl) Fatal(message string) {
 }
 
 func (logger *LeveledLoggerImpl) Fatalf(messageFormat string, args ...any) {
-	logger.Printlnf(Fatal, messageFormat, args...)
+	logger.Printf(Fatal, messageFormat, args...)
 }
 
 func (logger *LeveledLoggerImpl) Panic(message string) {
@@ -187,5 +235,5 @@ func (logger *LeveledLoggerImpl) Panic(message string) {
 }
 
 func (logger *LeveledLoggerImpl) Panicf(messageFormat string, args ...any) {
-	logger.Printlnf(Panic, messageFormat, args...)
+	logger.Printf(Panic, messageFormat, args...)
 }

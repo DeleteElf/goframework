@@ -96,7 +96,7 @@ func TestTransactionCallback(t *testing.T) {
 			loghelper.GetDefaultLogger().Info("查询失败")
 			return err
 		}
-		//log.Printlnf("修改数据后，查询结果%s", string(jsonData))
+		//log.Printf("修改数据后，查询结果%s", string(jsonData))
 		loghelper.GetDefaultLogger().Infof("修改数据后，查询结果%s", string(jsonData))
 		return errors.New("自定义错误")
 	})
@@ -107,7 +107,7 @@ func TestTransactionCallback(t *testing.T) {
 		loghelper.GetDefaultLogger().Info("查询失败")
 	}
 	//loghelper.GetDefaultLogger().Info("test")
-	//log.Printlnf("回滚事务后，查询结果%s", string(jsonData))
+	//log.Printf("回滚事务后，查询结果%s", string(jsonData))
 	loghelper.GetDefaultLogger().Infof("回滚事务后，查询结果%s", string(jsonData))
 	//loghelper.GetDefaultLogger().Info("test")
 	time.Sleep(1)
