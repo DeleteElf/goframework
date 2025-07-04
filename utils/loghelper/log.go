@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 	"runtime"
+	"sync"
 	"time"
 )
 
@@ -63,6 +64,7 @@ type LogManager struct {
 	FactoryMap map[string]*LeveledLoggerImpl
 	Level      LogLevel
 	levels     map[LogLevel]string
+	mutex      sync.RWMutex
 }
 
 type LeveledLoggerImpl struct {
@@ -113,6 +115,8 @@ func (logM *LogManager) Init(lvl LogLevel) {
 }
 
 func (logM *LogManager) NewLogger(scope string) logging.LeveledLogger {
+	logM.mutex.Lock()
+	defer logM.mutex.Unlock()
 	if logM.FactoryMap[scope] == nil {
 		logM.FactoryMap[scope] = NewLeveledLogger(scope, logM.Level)
 	}
