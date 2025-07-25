@@ -11,7 +11,7 @@ require (
 	github.com/zeromicro/go-zero v1.8.5
 	golang.org/x/text v0.27.0
 	gorm.io/driver/postgres v1.6.0
-	gorm.io/gorm v1.30.0
+	gorm.io/gorm v1.30.1
 )
 
 require (
