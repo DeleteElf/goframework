@@ -7,6 +7,7 @@ import (
 	"os"
 )
 
+// ReadAll 读取文件的所有内容
 func ReadAll(filePth string) ([]byte, error) {
 	f, err := os.Open(filePth)
 	if err != nil {
@@ -15,9 +16,13 @@ func ReadAll(filePth string) ([]byte, error) {
 	return io.ReadAll(f)
 }
 
-// MarkdownToHTML 将Markdown格式的内容转化成html格式的内容
-func MarkdownToHTML(md string) string {
-	bytes := blackfriday.Run([]byte(md))
-	theHTML := string(bytes)
-	return bluemonday.UGCPolicy().Sanitize(theHTML)
+// MarkdownToHtml 将Markdown格式的内容转化成html格式的内容
+func MarkdownToHtml(md string) string {
+	return string(MarkdownToHtmlByte([]byte(md)))
+}
+
+// MarkdownToHtmlByte 将Markdown格式的内容转化成html格式的内容
+func MarkdownToHtmlByte(md []byte) []byte {
+	bytes := blackfriday.Run(md)
+	return bluemonday.UGCPolicy().SanitizeBytes(bytes)
 }
