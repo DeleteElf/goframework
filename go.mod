@@ -12,7 +12,7 @@ require (
 	github.com/microcosm-cc/bluemonday v1.0.27
 	github.com/pion/logging v0.2.4
 	github.com/russross/blackfriday/v2 v2.1.0
-	github.com/zeromicro/go-zero v1.9.1
+	github.com/zeromicro/go-zero v1.9.0
 	golang.org/x/text v0.30.0
 	gorm.io/driver/postgres v1.6.0
 	gorm.io/gorm v1.31.0

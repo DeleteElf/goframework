@@ -117,8 +117,8 @@ github.com/twitchyliquid64/golang-asm v0.15.1 h1:SU5vSMR7hnwNxj24w34ZyCi/FmDZTkS
 github.com/twitchyliquid64/golang-asm v0.15.1/go.mod h1:a1lVb/DtPvCB8fslRZhAngC2+aY1QWCk3Cedj/Gdt08=
 github.com/ugorji/go/codec v1.3.0 h1:Qd2W2sQawAfG8XSvzwhBeoGq71zXOC/Q1E9y/wUcsUA=
 github.com/ugorji/go/codec v1.3.0/go.mod h1:pRBVtBSKl77K30Bv8R2P+cLSGaTtex6fsA2Wjqmfxj4=
-github.com/zeromicro/go-zero v1.9.1 h1:GZCl4jun/ZgZHnSvX3SSNDHf+tEGmEQ8x2Z23xjHa9g=
-github.com/zeromicro/go-zero v1.9.1/go.mod h1:bHOl7Xr7EV/iHZWEqsUNJwFc/9WgAMrPpPagYvOaMtY=
+github.com/zeromicro/go-zero v1.9.0 h1:hlVtQCSHPszQdcwZTawzGwTej1G2mhHybYzMRLuwCt4=
+github.com/zeromicro/go-zero v1.9.0/go.mod h1:TMyCxiaOjLQ3YxyYlJrejaQZF40RlzQ3FVvFu5EbcV4=
 go.opentelemetry.io/otel v1.24.0 h1:0LAOdjNmQeSTzGBzduGe/rU4tZhMwL5rWgtp9Ku5Jfo=
 go.opentelemetry.io/otel v1.24.0/go.mod h1:W7b9Ozg4nkF5tWI5zsXkaKKDjdVjpD4oAt9Qi/MArHo=
 go.opentelemetry.io/otel/metric v1.24.0 h1:6EhoGWWK28x1fbpA4tYTOWBkPefTDQnb8WSGXlc88kI=
