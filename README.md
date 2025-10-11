@@ -45,8 +45,8 @@ go work use ./example
 go env -w GOPROXY=https://goproxy.cn,direct
 #如果发现自己提交github的代码无法马上获得更新，是因为上面这个代理有自己的缓存，需要切换成下面这个代理，才能获取到最新更新，不过这个地址比较慢也可能访问不到，需要梯子支持，这个本质上也是获取代理大约有3分钟延迟
 go env -w GOPROXY=https://goproxy.io,direct
-#直接临时关闭代理方法
-go env -w GOPROXY=
+#直接临时关闭代理方法,从直接地址下载
+go env -w GOPROXY=direct
 go get -u github.com/deleteelf/goframework
 ```
 
