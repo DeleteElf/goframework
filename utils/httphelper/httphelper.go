@@ -60,12 +60,12 @@ excludesall=!@#?    //这将验证字符串值在子字符串值中是否包含�
 */
 // 验证示例模板
 type validateTemplate struct {
-	Id         string `json:"id" validate:“required”`
-	Age        string `json:"age" validate:“gte=1,lte=30”`
-	Email      string `json:"email" validate:“required,email”`
-	Password   string `json:"password" validate:“required”`
-	RePassword string `json:"re_password" validate:“required,eqfield=Password”`
-	Date       string `json:"date" validate:“required,datetime=2000-01-01,checkDate”`
+	Id         string `json:"id" validate:"required"`
+	Age        string `json:"age" validate:"gte=1,lte=30"`
+	Email      string `json:"email" validate:"required,email"`
+	Password   string `json:"password" validate:"required"`
+	RePassword string `json:"re_password" validate:"required,eqfield=Password"`
+	Date       string `json:"date" validate:"required,datetime=2000-01-01,checkDate"`
 	Tag        any    `json:"tag,omitempty"`
 	//表示字段值符合日期类型，如果datetime后边不接=?，那么默认为Y-m-d H:i:s，否则验证器会按照指定格式判断，比如 datetime=Y-m、datetime=Y/m/d H:i:s等，可以是Y m d H i s 的随意拼接
 }
@@ -159,7 +159,7 @@ func BuildJwtToken(payload string, minutes int64, iat int64) (string, error) {
 	return token.SignedString([]byte(jwtSecretKey))
 }
 
-// 解析jwt token，tokenStr必须携带协议头 ”Bearer “
+// 解析jwt token，tokenStr必须携带协议头 "Bearer "
 func ParseJwtToken(tokenStr string) *jwt.Token {
 	//var clientClaims jwt.Claims
 	//token, err := jwt.ParseWithClaims(tokenStr, clientClaims, func(t *jwt.Token) (interface{}, error) {
