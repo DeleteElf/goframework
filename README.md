@@ -25,14 +25,14 @@
 ```shell
 # github上public的项目，无需设置这个，
 # 如果要访问私有项目，则可以如下方式设置这个账户下的不走代理，不走代理需要使用梯子
-go env -w GOPRIVATE=github.com/deleteelf
+go env -w GOPRIVATE=github.com/DeleteElf
 #拉取模块 
-go get github.com/deleteelf/goframework
+go get github.com/DeleteElf/goframework
 #清理一下代码区域，防止刚拉的代码，被就代码搞混乱了
 go mod tidy
 ```
 ###### 方法二、通过多模块配置加载此模块
-多模块配置无需使用go get github.com/deleteelf/goframework来获取最新代码
+多模块配置无需使用go get github.com/DeleteElf/goframework来获取最新代码
 ```shell
 #初始化多模块工作区，模块是子目录，goland打开时使用父目录打开
 go work init ./goframework
@@ -47,7 +47,7 @@ go env -w GOPROXY=https://goproxy.cn,direct
 go env -w GOPROXY=https://goproxy.io,direct
 #直接临时关闭代理方法,从直接地址下载，不过这个地址比较慢也可能访问不到，需要梯子支持
 go env -w GOPROXY=direct
-go get -u github.com/deleteelf/goframework
+go get -u github.com/DeleteElf/goframework
 ```
 
 1. loghelper 日志工具类，如果没有初始化级别，默认初始化warn级别日志

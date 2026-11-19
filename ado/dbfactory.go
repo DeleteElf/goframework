@@ -2,8 +2,8 @@ package ado
 
 import (
 	"database/sql"
-	"github.com/deleteelf/goframework/entities"
-	"github.com/deleteelf/goframework/utils/loghelper"
+	"github.com/DeleteElf/goframework/entities"
+	"github.com/DeleteElf/goframework/utils/loghelper"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )

@@ -1,7 +1,7 @@
 package entities
 
 import (
-	"github.com/deleteelf/goframework/utils/stringhelper"
+	"github.com/DeleteElf/goframework/utils/stringhelper"
 	"reflect"
 	"time"
 )

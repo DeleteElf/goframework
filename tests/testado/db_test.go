@@ -3,8 +3,8 @@ package testado
 import (
 	"encoding/json"
 	"errors"
-	"github.com/deleteelf/goframework/ado"
-	"github.com/deleteelf/goframework/utils/loghelper"
+	"github.com/DeleteElf/goframework/ado"
+	"github.com/DeleteElf/goframework/utils/loghelper"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"testing"

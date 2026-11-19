@@ -3,7 +3,7 @@ package httphelper
 import (
 	"bytes"
 	"context"
-	"github.com/deleteelf/goframework/web"
+	"github.com/DeleteElf/goframework/web"
 	"github.com/go-playground/validator/v10"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/zeromicro/go-zero/rest/httpx"
